@@ -213,11 +213,14 @@ cd aicon
    npm install
    ```
 
-3. Configure Local Environment:
-   - Verify `.env.local` contains:
+3. Configure how predictions are fetched (optional):
+   - By default, **do not set** `NEXT_PUBLIC_BACKEND_URL`. The dashboard posts to the Next.js route `/api/predict` (same origin). That works for local `npm run dev` and for Vercel with no extra env vars.
+   - Set `NEXT_PUBLIC_BACKEND_URL` only when you want the browser to call FastAPI instead (local backend or a hosted Render URL). Create `frontend/.env.local` if needed:
      ```env
+     # Use the FastAPI server (leave this unset to use /api/predict)
      NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
      ```
+   - Production (Vercel): leave the variable unset to keep `/api/predict`, or set it to your Render backend origin (no trailing slash), e.g. `https://aicon-backend.onrender.com`.
 
 4. Start the Next.js development server:
    ```bash
@@ -231,8 +234,8 @@ cd aicon
 
 ## 🎉 You're All Set!
 
-If both servers are running without errors:
-- **Backend API**: `http://localhost:8000`
-- **Frontend Dashboard**: `http://localhost:3000`
+If the frontend is running:
+- **Frontend Dashboard**: `http://localhost:3000` (predictions via `/api/predict` unless `NEXT_PUBLIC_BACKEND_URL` is set)
+- **Backend API** (only if you started FastAPI): `http://localhost:8000`
 
 If you encounter any issues during setup, reach out on the team chat or open an issue using `gh issue create`! Happy hacking! 🚀
