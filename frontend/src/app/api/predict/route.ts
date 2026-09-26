@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       risk_level: risk_level,
       status: "success"
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to compute AI prediction" }, { status: 400 });
   }
 }
