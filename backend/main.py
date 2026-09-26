@@ -1,8 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import os
 from dotenv import load_dotenv
-from model_loader import get_prediction
+
+try:
+    from model_loader import get_prediction
+except ImportError:
+    from backend.model_loader import get_prediction
 
 load_dotenv()
 
