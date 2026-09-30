@@ -28,32 +28,32 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-bg text-text">
+    <div className="flex min-h-screen bg-background text-foreground">
       {/* NUTRITIONIST SIDEBAR */}
       <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-surface-2 p-6">
         <Link href="/" className="flex items-center gap-2 text-xl font-bold text-forest mb-12">
           <Leaf className="text-sage" /> ClimaDiet
         </Link>
         <nav className="flex-1 space-y-2">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-muted mb-4 px-3">Workspace</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-4 px-3">Workspace</div>
           <button className="flex w-full items-center gap-3 rounded-md bg-white px-3 py-2.5 text-sm font-semibold text-forest shadow-sm border border-border">
             <LayoutDashboard size={18} /> Dashboard
           </button>
-          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted hover:bg-white/50 hover:text-text transition-colors">
+          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-white/50 hover:text-foreground transition-colors">
             <PlusCircle size={18} /> New Patient
           </button>
-          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted hover:bg-white/50 hover:text-text transition-colors">
+          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-white/50 hover:text-foreground transition-colors">
             <Users size={18} /> Patients
           </button>
-          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted hover:bg-white/50 hover:text-text transition-colors">
+          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-white/50 hover:text-foreground transition-colors">
             <ClipboardList size={18} /> Meal Plans
           </button>
-          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted hover:bg-white/50 hover:text-text transition-colors">
+          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-white/50 hover:text-foreground transition-colors">
             <Activity size={18} /> Insights
           </button>
         </nav>
         <div className="pt-6 border-t border-border mt-auto">
-          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted hover:bg-white/50 hover:text-text transition-colors">
+          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-white/50 hover:text-foreground transition-colors">
             <Settings size={18} /> Settings
           </button>
         </div>
@@ -75,7 +75,7 @@ export default function Dashboard() {
             <div className="flex flex-col gap-6 xl:sticky xl:top-10">
               <div>
                 <h2 className="editorial-title text-2xl mb-1">New Plan Generation</h2>
-                <p className="text-sm text-muted">Enter patient signals and local climate context.</p>
+                <p className="text-sm text-muted-foreground">Enter patient signals and local climate context.</p>
               </div>
               
               {error && (
@@ -108,9 +108,9 @@ export default function Dashboard() {
                     exit={{ opacity: 0 }}
                     className="flex h-[600px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-2/50 text-center p-8"
                   >
-                    <ClipboardList size={48} className="text-muted/30 mb-4" />
+                    <ClipboardList size={48} className="text-muted-foreground/30 mb-4" />
                     <h3 className="text-lg font-bold text-forest mb-2">No active plan</h3>
-                    <p className="text-sm text-muted max-w-sm">
+                    <p className="text-sm text-muted-foreground max-w-sm">
                       Submit the clinical intake form to run the deterministic math engine and generate a validated, climate-aware meal plan.
                     </p>
                   </motion.div>

@@ -26,7 +26,7 @@ export default function MealPlanView({ plan }: { plan: PlanResponse }) {
               className={`flex-shrink-0 flex flex-col items-center justify-center w-20 h-24 rounded-xl border transition-all ${
                 isSelected 
                   ? "bg-forest border-forest text-white shadow-md" 
-                  : "bg-surface border-border text-muted hover:border-forest/30"
+                  : "bg-surface border-border text-muted-foreground hover:border-forest/30"
               }`}
             >
               <span className="text-xs font-bold uppercase tracking-wider mb-1">Day {idx + 1}</span>
@@ -62,9 +62,9 @@ export default function MealPlanView({ plan }: { plan: PlanResponse }) {
               
               <div className="p-5 flex flex-col flex-1">
                 <h4 className="editorial-title text-xl mb-1">{meal.name}</h4>
-                <div className="text-sm font-mono text-muted mb-4">{meal.calories} kcal · {meal.protein}g protein</div>
+                <div className="text-sm font-mono text-muted-foreground mb-4">{meal.calories} kcal · {meal.protein}g protein</div>
                 
-                <p className="text-sm text-muted line-clamp-2 mb-4 flex-1">
+                <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
                   {meal.why}
                 </p>
 
@@ -103,24 +103,24 @@ export default function MealPlanView({ plan }: { plan: PlanResponse }) {
               </div>
 
               <div className="md:w-1/2 p-8 md:p-10 flex flex-col">
-                <div className="text-xs font-bold uppercase tracking-wider text-muted mb-2">{selectedMeal.slot}</div>
+                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">{selectedMeal.slot}</div>
                 <h2 className="editorial-title text-3xl mb-4">{selectedMeal.name}</h2>
                 
                 <div className="flex gap-4 mb-8 pb-6 border-b border-border">
                   <div>
-                    <div className="text-[10px] uppercase font-bold text-muted">Calories</div>
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground">Calories</div>
                     <div className="font-mono text-lg text-forest">{selectedMeal.calories}</div>
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase font-bold text-muted">Protein</div>
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground">Protein</div>
                     <div className="font-mono text-lg text-forest">{selectedMeal.protein}g</div>
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase font-bold text-muted">Carbs</div>
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground">Carbs</div>
                     <div className="font-mono text-lg text-forest">{selectedMeal.carbs}g</div>
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase font-bold text-muted">Fat</div>
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground">Fat</div>
                     <div className="font-mono text-lg text-forest">{selectedMeal.fat}g</div>
                   </div>
                 </div>
@@ -129,22 +129,22 @@ export default function MealPlanView({ plan }: { plan: PlanResponse }) {
                   <h4 className="text-sm font-bold text-forest mb-2">Ingredients</h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedMeal.ingredients?.map((ing, i) => (
-                      <span key={i} className="text-xs font-medium px-2 py-1 bg-surface-2 rounded-md border border-border text-muted">
+                      <span key={i} className="text-xs font-medium px-2 py-1 bg-surface-2 rounded-md border border-border text-muted-foreground">
                         {ing}
                       </span>
-                    )) || <span className="text-sm text-muted">No ingredients listed.</span>}
+                    )) || <span className="text-sm text-muted-foreground">No ingredients listed.</span>}
                   </div>
                 </div>
 
                 <div className="mb-6">
                   <h4 className="text-sm font-bold text-forest mb-2">Why this meal?</h4>
-                  <p className="text-sm text-muted leading-relaxed">{selectedMeal.why}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{selectedMeal.why}</p>
                 </div>
 
                 <div className="mt-auto pt-6">
                   <ul className="space-y-2">
                     {selectedMeal.benefits.map((b, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-muted">
+                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
                         <span className="text-success mt-0.5">•</span> {b}
                       </li>
                     ))}

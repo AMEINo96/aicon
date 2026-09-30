@@ -12,21 +12,21 @@ export default function MacroScorecard({ plan }: { plan: PlanResponse }) {
       {/* TOP METRIC ROW */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="clinical-card !p-4 flex flex-col justify-between">
-          <div className="text-xs font-bold uppercase tracking-wider text-muted mb-1">Target Calories</div>
-          <div className="text-2xl font-mono font-bold text-forest">{targets.target_calories} <span className="text-sm font-sans text-muted">kcal</span></div>
+          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Target Calories</div>
+          <div className="text-2xl font-mono font-bold text-forest">{targets.target_calories} <span className="text-sm font-sans text-muted-foreground">kcal</span></div>
         </div>
         <div className="clinical-card !p-4 flex flex-col justify-between">
-          <div className="text-xs font-bold uppercase tracking-wider text-muted mb-1">Target Protein</div>
-          <div className="text-2xl font-mono font-bold text-forest">{targets.protein_g} <span className="text-sm font-sans text-muted">g</span></div>
+          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Target Protein</div>
+          <div className="text-2xl font-mono font-bold text-forest">{targets.protein_g} <span className="text-sm font-sans text-muted-foreground">g</span></div>
         </div>
         <div className="clinical-card !p-4 flex flex-col justify-between">
-          <div className="text-xs font-bold uppercase tracking-wider text-muted mb-1">Base TDEE</div>
-          <div className="text-2xl font-mono font-bold text-muted">{targets.tdee} <span className="text-sm font-sans">kcal</span></div>
+          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Base TDEE</div>
+          <div className="text-2xl font-mono font-bold text-muted-foreground">{targets.tdee} <span className="text-sm font-sans">kcal</span></div>
         </div>
         <div className="clinical-card !p-4 flex flex-col justify-between border-l-4 border-l-climate">
-          <div className="text-xs font-bold uppercase tracking-wider text-muted mb-1">Local Climate</div>
+          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Local Climate</div>
           <div className="text-2xl font-mono font-bold text-forest flex items-center gap-1">
-            {weather.forecast[0]?.temperature_max || "--"}°C <span className="text-sm font-sans text-muted">{weather.location}</span>
+            {weather.forecast[0]?.temperature_max || "--"}°C <span className="text-sm font-sans text-muted-foreground">{weather.location}</span>
           </div>
         </div>
       </div>
@@ -38,32 +38,32 @@ export default function MacroScorecard({ plan }: { plan: PlanResponse }) {
             <h3 className="editorial-title text-lg flex items-center gap-2">
               <Target size={18} className="text-sage" /> Clinical Targets
             </h3>
-            <div className="text-xs font-bold uppercase tracking-wider text-muted bg-surface-2 px-3 py-1 rounded-full">
+            <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground bg-surface-2 px-3 py-1 rounded-full">
               {patient.goal}
             </div>
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <div className="text-xs text-muted mb-1">BMI</div>
+              <div className="text-xs text-muted-foreground mb-1">BMI</div>
               <div className="font-mono font-semibold">{targets.bmi} ({targets.bmi_category})</div>
             </div>
             <div>
-              <div className="text-xs text-muted mb-1">BMR</div>
+              <div className="text-xs text-muted-foreground mb-1">BMR</div>
               <div className="font-mono font-semibold">{targets.bmr} kcal</div>
             </div>
             <div>
-              <div className="text-xs text-muted mb-1">Carbs</div>
+              <div className="text-xs text-muted-foreground mb-1">Carbs</div>
               <div className="font-mono font-semibold">{targets.carbs_g} g</div>
             </div>
             <div>
-              <div className="text-xs text-muted mb-1">Fat</div>
+              <div className="text-xs text-muted-foreground mb-1">Fat</div>
               <div className="font-mono font-semibold">{targets.fat_g} g</div>
             </div>
           </div>
 
           <div className="pt-4 border-t border-border">
-            <div className="text-xs font-bold uppercase tracking-wider text-muted mb-3">Patient Profile</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Patient Profile</div>
             <div className="flex flex-wrap gap-2 text-sm text-forest">
               <span className="bg-surface-2 px-2.5 py-1 rounded-md border border-border">Age {patient.age}</span>
               <span className="bg-surface-2 px-2.5 py-1 rounded-md border border-border">{patient.gender}</span>

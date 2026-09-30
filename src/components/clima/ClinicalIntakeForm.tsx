@@ -82,7 +82,7 @@ export default function ClinicalIntakeForm({ onSubmit, loading }: { onSubmit: (d
             <div className="flex flex-wrap gap-2 mb-3">
               {CONDITIONS_PRESET.map(c => (
                 <button type="button" key={c} onClick={() => toggleArray("conditions", c)} 
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${d.conditions.includes(c) ? "bg-forest text-white border-forest" : "bg-surface-2 text-muted border-transparent hover:border-border"}`}>
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${d.conditions.includes(c) ? "bg-forest text-white border-forest" : "bg-surface-2 text-muted-foreground border-transparent hover:border-border"}`}>
                   {c}
                 </button>
               ))}
@@ -94,7 +94,7 @@ export default function ClinicalIntakeForm({ onSubmit, loading }: { onSubmit: (d
             </div>
             <div className="flex gap-2">
               <input className="clinical-input" type="text" placeholder="Add condition..." value={customCond} onChange={e => setCustomCond(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom(customCond, "conditions", setCustomCond))} />
-              <button type="button" onClick={() => addCustom(customCond, "conditions", setCustomCond)} className="bg-surface-2 border border-border px-3 rounded-md text-muted hover:text-text"><Plus size={16}/></button>
+              <button type="button" onClick={() => addCustom(customCond, "conditions", setCustomCond)} className="bg-surface-2 border border-border px-3 rounded-md text-muted-foreground hover:text-foreground"><Plus size={16}/></button>
             </div>
           </div>
           
@@ -110,7 +110,7 @@ export default function ClinicalIntakeForm({ onSubmit, loading }: { onSubmit: (d
             </div>
             <div className="flex gap-2">
               <input className="clinical-input" type="text" placeholder="e.g. Halal, Vegan..." value={customDiet} onChange={e => setCustomDiet(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom(customDiet, "dietary_restrictions", setCustomDiet))} />
-              <button type="button" onClick={() => addCustom(customDiet, "dietary_restrictions", setCustomDiet)} className="bg-surface-2 border border-border px-3 rounded-md text-muted hover:text-text"><Plus size={16}/></button>
+              <button type="button" onClick={() => addCustom(customDiet, "dietary_restrictions", setCustomDiet)} className="bg-surface-2 border border-border px-3 rounded-md text-muted-foreground hover:text-foreground"><Plus size={16}/></button>
             </div>
           </div>
 
@@ -126,7 +126,7 @@ export default function ClinicalIntakeForm({ onSubmit, loading }: { onSubmit: (d
             </div>
             <div className="flex gap-2">
               <input className="clinical-input" type="text" placeholder="e.g. Peanuts, Shellfish..." value={customAllergy} onChange={e => setCustomAllergy(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom(customAllergy, "allergies", setCustomAllergy))} />
-              <button type="button" onClick={() => addCustom(customAllergy, "allergies", setCustomAllergy)} className="bg-surface-2 border border-border px-3 rounded-md text-muted hover:text-text"><Plus size={16}/></button>
+              <button type="button" onClick={() => addCustom(customAllergy, "allergies", setCustomAllergy)} className="bg-surface-2 border border-border px-3 rounded-md text-muted-foreground hover:text-foreground"><Plus size={16}/></button>
             </div>
           </div>
         </div>
