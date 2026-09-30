@@ -30,17 +30,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-# Use a specific verified model ID from ENV, fallback to flash
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
-
 @app.post("/api/generate-plan", response_model=PlanResponse)
 @app.post("/generate-plan", response_model=PlanResponse)
 def generate_meal_plan(patient: PatientIntake):
+    # Load dynamically so server restarts aren't required when adding keys
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     if not GEMINI_API_KEY:
-        raise HTTPException(status_code=500, detail="GEMINI_API_KEY is missing.")
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY is missing. Please add it to your .env.local file or Vercel Environment Variables.")
 
     client = genai.Client(api_key=GEMINI_API_KEY)
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
     # 1. Deterministic Math Engine
     t = get_nutritional_targets(patient)
