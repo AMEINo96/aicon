@@ -8,8 +8,14 @@ class PatientIntake(BaseModel):
     gender: str = Field(..., description="'Male' or 'Female'")
     activity: str = Field(..., description="e.g., 'Sedentary', 'Lightly active', 'Moderately active'")
     conditions: List[str] = Field(default=[], description="List of conditions like 'Diabetes', 'Hypertension'")
-    location: str = Field(..., description="Patient's location (e.g., 'Lahore, Pakistan (hot, 40C)')")
     ethnicity: str = Field(..., description="e.g., 'South Asian - Punjabi'")
+    goal: str = Field(default='maintain', description="e.g., 'maintain', 'lose weight', 'gain muscle'")
+    goal_amount: str = Field(default='', description="e.g., '5kg'")
+    dietary_restrictions: List[str] = Field(default=[], description="e.g., 'Halal', 'Vegan'")
+    start_date: str = Field(..., description="e.g. YYYY-MM-DD")
+    end_date: str = Field(..., description="e.g. YYYY-MM-DD")
+    city: str = Field(..., description="e.g., 'Lahore'")
+    country: str = Field(..., description="e.g., 'Pakistan'")
 
 # --- Output Models (To Next.js Frontend & for LLM Structured Output) ---
 

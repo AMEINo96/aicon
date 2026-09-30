@@ -10,7 +10,7 @@
 
 @layer base {
   :root {
-    --background: #000000;
+    --background: #09090b;
     --foreground: #fafafa;
     --card: #09090b;
     --card-foreground: #fafafa;
@@ -26,10 +26,10 @@
     --accent-foreground: #fafafa;
     --destructive: #7f1d1d;
     --destructive-foreground: #fafafa;
-    --border: #27272a;
-    --input: #27272a;
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.1);
     --ring: #d4d4d8;
-    --radius: 0.5rem;
+    --radius: 1rem;
   }
 }
 
@@ -41,6 +41,7 @@
     @apply bg-background text-foreground;
   }
 }
+
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .animate-marquee { animation: marquee 30s linear infinite; }
 details > summary { list-style: none; }
@@ -50,4 +51,46 @@ details[open] .chev { transform: rotate(180deg); }
 @keyframes fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 .fade-up { opacity: 0; animation: fade-up .6s cubic-bezier(.2,.7,.2,1) forwards; }
 
-html { scroll-behavior: smooth; color-scheme: dark; background: #0b0b0d; }
+@keyframes aurora-spin {
+  0% { transform: rotate(0deg) translate(2%, 2%) scale(1); }
+  50% { transform: rotate(180deg) translate(-2%, -2%) scale(1.1); }
+  100% { transform: rotate(360deg) translate(2%, 2%) scale(1); }
+}
+
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: #050505;
+}
+
+.aurora-bg::before, .aurora-bg::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  opacity: 0.6;
+  background: radial-gradient(circle at 50% 50%, rgba(185, 217, 90, 0.15) 0%, transparent 40%),
+              radial-gradient(circle at 80% 20%, rgba(50, 150, 100, 0.1) 0%, transparent 35%);
+  animation: aurora-spin 25s linear infinite;
+  pointer-events: none;
+}
+
+.aurora-bg::after {
+  background: radial-gradient(circle at 30% 70%, rgba(185, 217, 90, 0.1) 0%, transparent 45%);
+  animation: aurora-spin 35s linear infinite reverse;
+}
+
+.glass-panel {
+  @apply bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-2xl;
+}
+
+.glass-input {
+  @apply bg-black/20 backdrop-blur-md border border-white/10 text-white transition-all duration-300 focus:bg-white/5 focus:border-[#b9d95a]/50 focus:ring-4 focus:ring-[#b9d95a]/20 hover:border-white/30 outline-none;
+}
+
+.glass-button {
+  @apply relative overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(185,217,90,0.15)] hover:shadow-[0_0_25px_rgba(185,217,90,0.3)];
+}
+
+html { scroll-behavior: smooth; color-scheme: dark; background: #050505; }

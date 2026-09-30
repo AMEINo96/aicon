@@ -38,10 +38,7 @@ def generate_meal_plan(patient: PatientIntake):
     
     # 2. Get Weather
     from weather_api import get_7_day_forecast
-    # Use patient.location directly as it contains City, Country format
-    # e.g., "Lahore, Pakistan (hot, 40C)"
-    city_country = patient.location.split(" (")[0] if " (" in patient.location else patient.location
-    real_time_weather = get_7_day_forecast(city_country, "")
+    real_time_weather = get_7_day_forecast(patient.city, patient.country, patient.start_date)
 
     # 3. Prompt
     prompt = f"""
@@ -51,12 +48,14 @@ def generate_meal_plan(patient: PatientIntake):
     - Activity: {patient.activity}
     - Conditions: {', '.join(patient.conditions) if patient.conditions else 'None'}
     - Ethnicity: {patient.ethnicity}
-    - Location: {patient.location}
+    - Location: {patient.city}, {patient.country}
+    - Goal: {patient.goal} {patient.goal_amount}
+    - Dietary Restrictions: {', '.join(patient.dietary_restrictions) if patient.dietary_restrictions else 'None'}
     
     {real_time_weather}
     
     CRITICAL INSTRUCTIONS:
-    1. EXACTLY 3 MEALS PER DAY: You MUST provide exactly 'Breakfast', 'Lunch', and 'Dinner' for every day (21 meals total). Do NOT include snacks!
+    1. EXACTLY 3 MEALS PER DAY: You MUST provide exactly 'Breakfast', 'Lunch', and 'Dinner' for every day (21 meals total). Do NOT include snacks! The days must map starting from {patient.start_date} for 7 days.
     2. CLIMATE CONTEXT PER DAY: Match Day 1's meals to Day 1's forecasted weather, Day 2 to Day 2, etc. If > 32°C, no heavy/spoiling foods like fish.
     3. TARGETS: The math engine calculated:
        - Target Calories: {targets["target_calories"]} kcal
@@ -65,6 +64,7 @@ def generate_meal_plan(patient: PatientIntake):
        - Target Fats: {targets["fat_g"]}g
     Ensure the sum of the 3 meals EACH DAY roughly aligns with these daily targets.
     4. Provide an `emoji` for each meal, and an `image_keyword` (a single, simple word like 'curry' or 'salad').
+    5. DIETARY RESTRICTIONS: STRICTLY adhere to the patient's dietary restrictions ({', '.join(patient.dietary_restrictions) if patient.dietary_restrictions else 'None'}). For example, if Halal, ensure absolutely no haram ingredients or cross-contamination are suggested.
     """
 
     # 4. Generate
@@ -100,8 +100,7 @@ def generate_meal_plan(patient: PatientIntake):
 
     # 6. Post-process to inject actual image URLs
     for m in meals:
-        kw = urllib.parse.quote(m.image_keyword)
-        m.image = f"https://loremflickr.com/800/600/{kw}"
+        m.image = f"https://image.pollinations.ai/prompt/Delicious%20{urllib.parse.quote(m.name)}%20professional%20food%20photography"
 
     # 7. Assemble Payload
     return PlanResponse(

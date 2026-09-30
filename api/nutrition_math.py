@@ -87,10 +87,10 @@ def get_nutritional_targets(patient: PatientIntake) -> dict:
     bmr = calculate_bmr(patient.weight, patient.height, patient.age, patient.gender)
     baseline_tdee = calculate_tdee(bmr, patient.activity)
     
-    # We will assume a default health optimization goal since the frontend intake removed it
-    target_calories = adjust_calories_for_goal(baseline_tdee, "improve health")
+    # We use the goal field from the intake form
+    target_calories = adjust_calories_for_goal(baseline_tdee, patient.goal)
     
-    protein, carbs, fat = calculate_macros(target_calories, patient.conditions, "improve health")
+    protein, carbs, fat = calculate_macros(target_calories, patient.conditions, patient.goal)
     
     return {
         "bmi": bmi,

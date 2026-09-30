@@ -18,7 +18,7 @@ export default function MacroScorecard({ plan }: { plan: PlanResponse }) {
   let offset = 0;
 
   return (
-    <div className="fade-up rounded-3xl border border-white/10 bg-[#111113] p-7">
+    <div className="rounded-3xl glass-panel p-6 sm:p-8">
       <div className="flex flex-col items-center gap-8 sm:flex-row">
         <div className="relative h-44 w-44 shrink-0">
           <svg viewBox="0 0 160 160" className="-rotate-90">

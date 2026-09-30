@@ -29,7 +29,8 @@ export type PlanResponse = { tdee: number; protein: number; carbs: number; fat: 
 
 export type IntakeData = {
   age: number; weight: number; height: number; gender: string; activity: string;
-  conditions: string[]; location: string; ethnicity: string;
+  conditions: string[]; city: string; country: string; ethnicity: string;
+  goal: string; goal_amount: string; dietary_restrictions: string[]; start_date: string; end_date: string;
 };
 
 let n = 0;

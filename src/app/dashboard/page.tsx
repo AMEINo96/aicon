@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Leaf } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import ClinicalIntakeForm from "@/components/clima/ClinicalIntakeForm";
 import MacroScorecard from "@/components/clima/MacroScorecard";
 import MealPlanView from "@/components/clima/MealPlanView";
@@ -23,28 +24,62 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0b0d] text-neutral-100">
-      <header className="border-b border-white/10 bg-[#0b0b0d]">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <Link href="/" className="flex items-center gap-2 text-xl font-extrabold"><Leaf style={{ color: ACCENT }} /> ClimaDiet</Link>
-          <span className="text-sm text-neutral-400">Clinical decision support</span>
+    <div className="min-h-screen text-neutral-100 selection:bg-lime-500/30">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/50 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
+          <Link href="/" className="flex items-center gap-2 text-xl font-extrabold transition-transform hover:scale-105"><Leaf style={{ color: ACCENT }} /> ClimaDiet</Link>
+          <span className="text-sm font-medium text-neutral-400">Clinical decision support</span>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl space-y-8 px-5 py-10">
-        <div className="grid gap-8 lg:grid-cols-[420px_1fr]">
-          <ClinicalIntakeForm onSubmit={submit} loading={loading} />
-          <section>
-            {plan ? (
-              <div key={key}><MacroScorecard plan={plan} /></div>
-            ) : (
-              <div className="grid h-full min-h-[420px] place-items-center rounded-3xl border-2 border-dashed border-white/10 bg-white/[0.02] p-10 text-center">
-                <div><Leaf className="mx-auto mb-3" style={{ color: ACCENT }} size={40} /><h3 className="text-xl font-bold text-white">Your plan appears here</h3>
-                  <p className="mt-1 max-w-sm text-sm text-neutral-400">Fill in the patient intake and generate a plan tuned to their climate and background.</p></div>
-              </div>
-            )}
-          </section>
+      
+      <main className="mx-auto max-w-7xl px-5 py-8 sm:py-12">
+        <div className="grid gap-8 lg:grid-cols-[380px_1fr] xl:grid-cols-[420px_1fr] items-start">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="lg:sticky lg:top-24"
+          >
+            <ClinicalIntakeForm onSubmit={submit} loading={loading} />
+          </motion.div>
+          
+          <div className="flex min-w-0 flex-col gap-8">
+            <AnimatePresence mode="wait">
+              {plan ? (
+                <motion.div
+                  key={`results-${key}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="flex flex-col gap-8"
+                >
+                  <MacroScorecard plan={plan} />
+                  <MealPlanView meals={plan.meals} tdee={plan.tdee} subtitle={place} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="empty-state"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="glass-panel grid h-full min-h-[500px] place-items-center rounded-3xl p-10 text-center"
+                >
+                  <div className="max-w-md">
+                    <motion.div
+                      animate={{ rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <Leaf className="mx-auto mb-4" style={{ color: ACCENT }} size={48} />
+                    </motion.div>
+                    <h3 className="text-2xl font-bold text-white mb-2">Your personalized plan awaits</h3>
+                    <p className="text-base text-neutral-400">Fill in the patient intake on the left to generate an AI-powered meal plan perfectly tuned to their climate and background.</p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
-        {plan && <div key={`p${key}`} className="fade-up"><MealPlanView meals={plan.meals} tdee={plan.tdee} subtitle={place} /></div>}
       </main>
     </div>
   );
