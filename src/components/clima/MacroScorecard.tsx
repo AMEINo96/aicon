@@ -3,7 +3,9 @@ import { type PlanResponse } from "@/lib/mock";
 import { Target, ShieldCheck } from "lucide-react";
 
 export default function MacroScorecard({ plan }: { plan: PlanResponse }) {
-  const { targets, patient, weather, constraints_applied } = plan;
+  const { nutrition, patient, weather } = plan;
+  const targets = nutrition;
+  const constraints_applied = nutrition.constraints_applied;
 
   return (
     <div className="flex flex-col gap-6">

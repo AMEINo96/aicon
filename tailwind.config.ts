@@ -53,7 +53,6 @@ const config: Config = {
         ivory: "var(--bg)",
         bg: "var(--bg)",
         text: "var(--text)",
-        border: "var(--border)",
       },
       fontFamily: {
         sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],

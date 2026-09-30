@@ -8,7 +8,7 @@ export default function MealPlanView({ plan }: { plan: PlanResponse }) {
   const [selectedDay, setSelectedDay] = useState(0);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
 
-  const days = plan.plan;
+  const days = plan.meal_plan.days;
   const currentDay = days[selectedDay];
 
   return (
