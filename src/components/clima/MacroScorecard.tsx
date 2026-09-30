@@ -95,7 +95,7 @@ export default function MacroScorecard({ plan }: { plan: PlanResponse }) {
             </li>
             <li className="flex items-start gap-3 text-sm">
               <div className="mt-0.5 w-4 h-4 rounded-full bg-success/20 text-success flex items-center justify-center text-[10px] font-bold">✓</div>
-              <div><span className="font-semibold text-forest block">Validation passed</span> Cross-contamination and calorie bounds checked.</div>
+              <div><span className="font-semibold text-forest block">Validation passed</span> Ingredients checked against known allergens and synonyms. *Requires human review to guarantee zero cross-contamination.*</div>
             </li>
           </ul>
         </div>

@@ -6,7 +6,7 @@ from api.meal_validator import validate_meals
 def test_bmi():
     bmi, cat = calculate_bmi(70, 175)
     assert round(bmi, 1) == 22.9
-    assert cat == "Normal"
+    assert cat == "Normal weight"
 
 def test_tdee_adjustments():
     tdee = calculate_tdee(1500, "Sedentary")
@@ -49,8 +49,32 @@ def test_meal_validator():
 
     # Allergy violation
     allergy_meals = full_meals.copy()
-    allergy_meals[0].name = "Test Meal"
-    allergy_meals[0].ingredients = ["peanut", "chicken"]
+    # Create a fresh Meal object to avoid mutating the shared reference
+    bad_meal = Meal(
+        id="bad1", day="Day 1", slot="Breakfast", name="Test Meal", ingredients=["peanut", "chicken"], image_keyword="test",
+        calories=666, protein=50, carbs=66, fat=22, why="", benefits=[]
+    )
+    allergy_meals[0] = bad_meal
     is_valid, msgs = validate_meals(allergy_meals, targets, ["peanut"])
     assert not is_valid
-    assert any("violates explicit restriction" in m for m in msgs)
+    assert any("contains prohibited ingredient" in m for m in msgs)
+    
+    # Macro out of bounds (Protein too high)
+    high_protein_meals = full_meals.copy()
+    high_protein_meals[0] = Meal(
+        id="hp1", day="Day 1", slot="Breakfast", name="Test Meal", ingredients=["chicken"], image_keyword="test",
+        calories=666, protein=100, carbs=66, fat=22, why="", benefits=[]
+    )
+    is_valid, msgs = validate_meals(high_protein_meals, targets, [])
+    assert not is_valid
+    assert any("protein" in m and "outside" in m for m in msgs)
+    
+    # Macro out of bounds (Fat too high)
+    high_fat_meals = full_meals.copy()
+    high_fat_meals[0] = Meal(
+        id="hf1", day="Day 1", slot="Breakfast", name="Test Meal", ingredients=["oil"], image_keyword="test",
+        calories=666, protein=50, carbs=66, fat=100, why="", benefits=[]
+    )
+    is_valid, msgs = validate_meals(high_fat_meals, targets, [])
+    assert not is_valid
+    assert any("fat" in m and "outside" in m for m in msgs)
