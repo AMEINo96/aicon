@@ -14,52 +14,46 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* SECTION 1: Asymmetrical Hero */}
-      <section className="mx-auto max-w-7xl px-6 lg:px-12 py-16 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-forest leading-[1.1] mb-6">
+      {/* SECTION 1: Editorial Hero */}
+      <section className="mx-auto max-w-7xl px-6 lg:px-12 py-12 lg:py-20">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-14 items-start">
+          {/* Left: Copy */}
+          <div className="max-w-lg pt-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-forest leading-[1.12] mb-4">
               Nutrition that understands your climate.
             </h1>
-            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+            <p className="text-base text-[#5A5A5A] mb-6 leading-relaxed">
               Personalized meal plans built around your health goals, local foods, cultural habits, and the conditions outside your window.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link href="/dashboard" className="inline-flex items-center gap-2 bg-forest text-white px-6 py-3.5 rounded-md font-semibold hover:bg-opacity-90 transition-all">
-                Enter Nutritionist Workspace <ArrowRight size={18} />
-              </Link>
-            </div>
+            <Link href="/dashboard" className="inline-flex items-center gap-2 bg-forest text-white px-6 py-3.5 rounded-md font-semibold text-sm hover:bg-forest/90 transition-all">
+              Open Nutritionist Workspace <ArrowRight size={16} />
+            </Link>
           </div>
           
-          <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-surface-2 shadow-lg">
-            <img 
-              src="https://images.unsplash.com/photo-1626200419199-391ae4be7a41?auto=format&fit=crop&q=80&w=1200" 
-              alt="Fresh, healthy South Asian cuisine"
-              className="object-cover w-full h-full"
-            />
-            {/* Overlay module */}
-            <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:w-72 bg-surface/95 backdrop-blur-sm p-4 rounded-xl border border-white/20 shadow-xl">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Context</div>
-                  <div className="text-forest font-semibold flex items-center gap-1 mt-0.5"><MapPin size={14}/> Lahore</div>
+          {/* Right: Image + Panel below */}
+          <div className="flex flex-col gap-4">
+            <div className="relative rounded-xl overflow-hidden aspect-[4/3] bg-surface-2 shadow-md">
+              <img 
+                src="https://images.unsplash.com/photo-1626200419199-391ae4be7a41?auto=format&fit=crop&q=80&w=1200" 
+                alt="Fresh, healthy South Asian cuisine"
+                className="object-cover w-full h-full"
+              />
+            </div>
+            {/* Context panel — separate from image for clarity */}
+            <div className="bg-[#F5F4F0] border border-[#E0DED8] p-4 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <MapPin size={14} className="text-forest" />
+                  <span className="text-sm font-semibold text-forest">Lahore</span>
+                  <span className="text-xs text-[#5A5A5A]">·</span>
+                  <span className="text-sm font-bold text-heat flex items-center gap-1"><Thermometer size={13} /> 39°C</span>
                 </div>
-                <div className="text-right">
-                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Temp</div>
-                  <div className="text-heat font-bold flex items-center gap-1 mt-0.5"><Thermometer size={14}/> 38°C</div>
-                </div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#888]">Climate Signal</span>
               </div>
-              <div className="pt-3 border-t border-border">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Plan Response</div>
-                <div className="flex justify-between text-sm font-medium text-forest">
-                  <span>Hydration</span> <span className="text-climate">↑</span>
-                </div>
-                <div className="flex justify-between text-sm font-medium text-forest">
-                  <span>Cooling foods</span> <span className="text-climate">↑</span>
-                </div>
-                <div className="flex justify-between text-sm font-medium text-forest">
-                  <span>Heavy meals</span> <span className="text-heat">↓</span>
-                </div>
+              <div className="flex gap-3 text-xs font-semibold">
+                <span className="px-2.5 py-1 rounded-md bg-white border border-[#E0DED8] text-forest">Hydration ↑</span>
+                <span className="px-2.5 py-1 rounded-md bg-white border border-[#E0DED8] text-forest">Cooling foods ↑</span>
+                <span className="px-2.5 py-1 rounded-md bg-white border border-[#E0DED8] text-heat">Heavy meals ↓</span>
               </div>
             </div>
           </div>
