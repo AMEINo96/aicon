@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AI RAPIDSPRINT Dashboard",
-  description: "AI in the loop Hackathon Boilerplate",
+  title: "ClimaDiet - AI Calorie Counter & Diet Plans",
+  description: "Track calories and get personalized meal plans with AI and a verified food database.",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-zinc-100 min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
         {children}
       </body>
