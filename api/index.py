@@ -120,23 +120,23 @@ def generate_meal_plan(patient: PatientIntake):
     
     def call_ai_agent(prompt: str) -> str:
         """Tries multiple free-tier AI providers sequentially to avoid 429 quota limits."""
-        # 1. Primary: Google Gemini
+        # 1. Primary: Google Gemini (stable generate_content API)
         if GEMINI_API_KEY:
             try:
-                interaction = client.interactions.create(
+                from google.genai import types
+                response = client.models.generate_content(
                     model=GEMINI_MODEL,
-                    input=prompt,
-                    response_format=[{
-                        "type": "text", "mime_type": "application/json", "schema": schema_dict
-                    }]
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema=schema_dict,
+                    )
                 )
-                return interaction.output_text
+                return response.text
             except Exception as e:
                 print("Gemini failed:", e)
-                if "429" not in str(e) and "exhausted" not in str(e).lower():
-                    pass # Keep trying fallbacks for other errors too for maximum uptime
 
-        # 2. Fallback: OpenRouter (Dozens of Free Models like Llama 3, Claude, Mistral)
+        # 2. Fallback: OpenRouter
         or_key = os.getenv("OPENROUTER_API_KEY")
         if or_key:
             try:
@@ -145,14 +145,15 @@ def generate_meal_plan(patient: PatientIntake):
                     "https://openrouter.ai/api/v1/chat/completions",
                     headers={"Authorization": f"Bearer {or_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "google/gemini-2.0-flash-lite-preview-02-05:free", # Free routing
+                        "model": "google/gemini-2.0-flash-exp:free",
                         "messages": [
                             {"role": "system", "content": f"You are a clinical AI. Reply ONLY with a raw JSON array matching this JSON Schema: {json.dumps(schema_dict)}"},
                             {"role": "user", "content": prompt}
                         ]
-                    }, timeout=30
+                    }, timeout=60
                 )
                 if res.status_code == 200: return res.json()["choices"][0]["message"]["content"]
+                else: print(f"OpenRouter returned {res.status_code}: {res.text[:200]}")
             except Exception as e: print("OpenRouter failed:", e)
 
         # 3. Fallback: Groq (Ultra-fast Llama 3 Free Tier)
@@ -164,14 +165,15 @@ def generate_meal_plan(patient: PatientIntake):
                     "https://api.groq.com/openai/v1/chat/completions",
                     headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "llama3-8b-8192",
+                        "model": "llama-3.1-8b-instant",
                         "messages": [
                             {"role": "system", "content": f"You are a clinical AI. Reply ONLY with a raw JSON array matching this JSON Schema: {json.dumps(schema_dict)}. No markdown blocks."},
                             {"role": "user", "content": prompt}
                         ]
-                    }, timeout=15
+                    }, timeout=30
                 )
                 if res.status_code == 200: return res.json()["choices"][0]["message"]["content"]
+                else: print(f"Groq returned {res.status_code}: {res.text[:200]}")
             except Exception as e: print("Groq failed:", e)
 
         raise Exception("All AI providers exhausted their Free Tier limits or failed. Please add OPENROUTER_API_KEY or GROQ_API_KEY to .env.local")
