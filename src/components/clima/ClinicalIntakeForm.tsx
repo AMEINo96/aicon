@@ -1,115 +1,155 @@
 "use client";
 import { useState } from "react";
-import { Loader2, Sparkles } from "lucide-react";
-import type { IntakeData } from "@/lib/mock";
-import { ACCENT } from "@/lib/theme";
+import { Loader2, Plus, X } from "lucide-react";
+import { type IntakeData } from "@/lib/mock";
 
-const G = ACCENT;
-const CONDITIONS = ["Diabetes", "Hypertension", "PCOS", "Thyroid", "High cholesterol", "Kidney disease", "None"];
-const ETHNICITIES = ["South Asian - Punjabi", "South Asian - Pashtun", "South Asian - Sindhi", "South Asian - Other", "Middle Eastern", "African", "East Asian", "European", "Other"];
-const ACTIVITY = ["Sedentary", "Lightly active", "Moderately active", "Very active", "Athlete"];
-
-const field = "glass-input w-full rounded-xl px-4 py-3.5 text-sm text-white [&>option]:bg-neutral-900";
-const Label = ({ children }: { children: React.ReactNode }) => <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-neutral-400">{children}</label>;
+const ETHNICITIES = ["South Asian", "Middle Eastern", "East Asian", "Mediterranean", "Western", "African", "Latin American"];
+const CONDITIONS_PRESET = ["Diabetes", "Hypertension", "PCOS"];
 
 export default function ClinicalIntakeForm({ onSubmit, loading }: { onSubmit: (d: IntakeData) => void; loading: boolean }) {
   const [d, setD] = useState<IntakeData>({
-    age: 28, weight: 78, height: 172, gender: "Male", activity: ACTIVITY[2],
-    conditions: [], allergies: [], city: "Lahore", country: "Pakistan", ethnicity: ETHNICITIES[0],
-    goal: "Lose weight", goal_amount: "5kg", dietary_restrictions: [],
-    start_date: new Date().toISOString().split("T")[0], end_date: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
+    age: 32, weight: 85, height: 175, gender: "male", activity: "sedentary",
+    goal: "Lose weight", goal_amount: "5kg", ethnicity: "South Asian",
+    conditions: [], allergies: [], dietary_restrictions: [],
+    city: "Lahore", country: "Pakistan", start_date: new Date().toISOString().split("T")[0], end_date: ""
   });
-  const set = <K extends keyof IntakeData>(k: K, v: IntakeData[K]) => setD((p) => ({ ...p, [k]: v }));
-  const num = (k: "age" | "weight" | "height") => (e: React.ChangeEvent<HTMLInputElement>) => set(k, parseFloat(e.target.value) || 0);
-  const toggle = (c: string) =>
-    set("conditions", c === "None" ? [] : d.conditions.includes(c) ? d.conditions.filter((x) => x !== c) : [...d.conditions, c]);
 
-  const [customCondition, setCustomCondition] = useState("");
-  const addCustomCondition = () => {
-    if (customCondition.trim() && !d.conditions.includes(customCondition.trim())) {
-      set("conditions", [...d.conditions, customCondition.trim()]);
-      setCustomCondition("");
-    }
-  };
-
+  const [customCond, setCustomCond] = useState("");
   const [customDiet, setCustomDiet] = useState("");
-  const addCustomDiet = () => {
-    if (customDiet.trim() && !d.dietary_restrictions.includes(customDiet.trim())) {
-      set("dietary_restrictions", [...d.dietary_restrictions, customDiet.trim()]);
-      setCustomDiet("");
+  const [customAllergy, setCustomAllergy] = useState("");
+
+  const set = (k: keyof IntakeData, v: string | number | string[]) => setD({ ...d, [k]: v });
+
+  const toggleArray = (key: "conditions" | "allergies" | "dietary_restrictions", val: string) => {
+    if (d[key].includes(val)) set(key, d[key].filter(x => x !== val));
+    else set(key, [...d[key], val]);
+  };
+
+  const addCustom = (val: string, key: "conditions" | "allergies" | "dietary_restrictions", setter: (v: string) => void) => {
+    if (val.trim() && !d[key].includes(val.trim())) {
+      set(key, [...d[key], val.trim()]);
+      setter("");
     }
   };
-  const removeDiet = (r: string) => set("dietary_restrictions", d.dietary_restrictions.filter(x => x !== r));
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSubmit(d); }} className="fade-up space-y-7 rounded-3xl glass-panel p-6 sm:p-8">
-      <div>
-        <h2 className="text-2xl font-extrabold text-white tracking-tight">Patient Intake</h2>
-        <p className="text-sm text-neutral-400 mt-1">Region and background shape what we recommend.</p>
-      </div>
-      <div className="grid grid-cols-3 gap-3">
-        <div><Label>Age</Label><input className={field} type="number" value={d.age} onChange={num("age")} /></div>
-        <div><Label>Weight (kg)</Label><input className={field} type="number" value={d.weight} onChange={num("weight")} /></div>
-        <div><Label>Height (cm)</Label><input className={field} type="number" value={d.height} onChange={num("height")} /></div>
-      </div>
-      <div>
-        <Label>Gender</Label>
-        <div className="grid grid-cols-2 gap-3">
-          {["Male", "Female"].map((g) => (
-            <button type="button" key={g} onClick={() => set("gender", g)}
-              className={`rounded-xl border py-3 text-sm font-semibold transition-all duration-300 ${d.gender === g ? "border-lime-400/50 bg-lime-400/10 text-lime-300 shadow-[0_0_15px_rgba(163,230,53,0.15)]" : "border-white/10 bg-black/20 text-neutral-300 hover:bg-white/5 hover:border-white/20"}`}>{g}</button>
-          ))}
+    <form onSubmit={(e) => { e.preventDefault(); onSubmit(d); }} className="flex flex-col gap-8 pb-10">
+      
+      {/* PATIENT */}
+      <section className="bg-surface rounded-xl border border-border p-5 sm:p-6 shadow-sm">
+        <h3 className="text-sm font-bold text-forest mb-4 border-b border-border pb-2">1. PATIENT PROFILE</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="clinical-label">Age</label><input className="clinical-input" type="number" value={d.age} onChange={e => set("age", +e.target.value)} /></div>
+          <div>
+            <label className="clinical-label">Gender</label>
+            <select className="clinical-input" value={d.gender} onChange={e => set("gender", e.target.value)}>
+              <option value="male">Male</option><option value="female">Female</option>
+            </select>
+          </div>
+          <div><label className="clinical-label">Weight (kg)</label><input className="clinical-input" type="number" value={d.weight} onChange={e => set("weight", +e.target.value)} /></div>
+          <div><label className="clinical-label">Height (cm)</label><input className="clinical-input" type="number" value={d.height} onChange={e => set("height", +e.target.value)} /></div>
         </div>
-      </div>
-      <div><Label>Activity level</Label>
-        <select className={field} value={d.activity} onChange={(e) => set("activity", e.target.value)}>{ACTIVITY.map((a) => <option key={a}>{a}</option>)}</select></div>
-      <div>
-        <Label>Clinical conditions</Label>
-        <div className="flex flex-wrap gap-2.5 mb-3">
-          {CONDITIONS.map((c) => {
-            const on = c === "None" ? d.conditions.length === 0 : d.conditions.includes(c);
-            return <button type="button" key={c} onClick={() => toggle(c)}
-              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-all duration-300 ${on ? "border-lime-400 bg-lime-400 text-neutral-900 shadow-[0_0_10px_rgba(163,230,53,0.3)]" : "border-white/10 bg-black/20 text-neutral-300 hover:border-white/30 hover:bg-white/5"}`}>{c}</button>;
-          })}
-          {d.conditions.filter(c => !CONDITIONS.includes(c)).map(c => (
-            <button type="button" key={c} onClick={() => toggle(c)}
-              className="rounded-full border border-lime-300 bg-lime-300/10 px-4 py-1.5 text-sm font-medium text-lime-200 transition hover:bg-lime-300/20">{c} ✕</button>
-          ))}
+      </section>
+
+      {/* LIFESTYLE */}
+      <section className="bg-surface rounded-xl border border-border p-5 sm:p-6 shadow-sm">
+        <h3 className="text-sm font-bold text-forest mb-4 border-b border-border pb-2">2. LIFESTYLE & GOALS</h3>
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="clinical-label">Activity Level</label>
+            <select className="clinical-input" value={d.activity} onChange={e => set("activity", e.target.value)}>
+              <option value="sedentary">Sedentary (office job)</option>
+              <option value="lightly active">Lightly Active</option>
+              <option value="moderately active">Moderately Active</option>
+              <option value="very active">Very Active</option>
+              <option value="athlete">Athlete</option>
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div><label className="clinical-label">Primary Goal</label><input className="clinical-input" type="text" value={d.goal} onChange={e => set("goal", e.target.value)} /></div>
+            <div><label className="clinical-label">Target (Optional)</label><input className="clinical-input" type="text" value={d.goal_amount} onChange={e => set("goal_amount", e.target.value)} /></div>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <input className={`${field} py-2`} type="text" placeholder="Other condition..." value={customCondition} onChange={(e) => setCustomCondition(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustomCondition())} />
-          <button type="button" onClick={addCustomCondition} className="rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-white transition hover:bg-white/10">Add</button>
+      </section>
+
+      {/* HEALTH */}
+      <section className="bg-surface rounded-xl border border-border p-5 sm:p-6 shadow-sm">
+        <h3 className="text-sm font-bold text-forest mb-4 border-b border-border pb-2">3. CLINICAL & DIETARY</h3>
+        <div className="flex flex-col gap-5">
+          {/* Conditions */}
+          <div>
+            <label className="clinical-label">Conditions</label>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {CONDITIONS_PRESET.map(c => (
+                <button type="button" key={c} onClick={() => toggleArray("conditions", c)} 
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${d.conditions.includes(c) ? "bg-forest text-white border-forest" : "bg-surface-2 text-muted border-transparent hover:border-border"}`}>
+                  {c}
+                </button>
+              ))}
+              {d.conditions.filter(c => !CONDITIONS_PRESET.includes(c)).map(c => (
+                <button type="button" key={c} onClick={() => toggleArray("conditions", c)} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-forest text-white border border-forest flex items-center gap-1">
+                  {c} <X size={12} />
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input className="clinical-input" type="text" placeholder="Add condition..." value={customCond} onChange={e => setCustomCond(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom(customCond, "conditions", setCustomCond))} />
+              <button type="button" onClick={() => addCustom(customCond, "conditions", setCustomCond)} className="bg-surface-2 border border-border px-3 rounded-md text-muted hover:text-text"><Plus size={16}/></button>
+            </div>
+          </div>
+          
+          {/* Dietary Restrictions */}
+          <div>
+            <label className="clinical-label">Dietary Restrictions</label>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {d.dietary_restrictions.map(r => (
+                <button type="button" key={r} onClick={() => toggleArray("dietary_restrictions", r)} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-forest text-white border border-forest flex items-center gap-1">
+                  {r} <X size={12} />
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input className="clinical-input" type="text" placeholder="e.g. Halal, Vegan..." value={customDiet} onChange={e => setCustomDiet(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom(customDiet, "dietary_restrictions", setCustomDiet))} />
+              <button type="button" onClick={() => addCustom(customDiet, "dietary_restrictions", setCustomDiet)} className="bg-surface-2 border border-border px-3 rounded-md text-muted hover:text-text"><Plus size={16}/></button>
+            </div>
+          </div>
+
+          {/* Allergies */}
+          <div>
+            <label className="clinical-label">Explicit Allergies</label>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {d.allergies.map(a => (
+                <button type="button" key={a} onClick={() => toggleArray("allergies", a)} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-heat text-white border border-heat flex items-center gap-1">
+                  {a} <X size={12} />
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input className="clinical-input" type="text" placeholder="e.g. Peanuts, Shellfish..." value={customAllergy} onChange={e => setCustomAllergy(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom(customAllergy, "allergies", setCustomAllergy))} />
+              <button type="button" onClick={() => addCustom(customAllergy, "allergies", setCustomAllergy)} className="bg-surface-2 border border-border px-3 rounded-md text-muted hover:text-text"><Plus size={16}/></button>
+            </div>
+          </div>
         </div>
-      </div>
-      <div>
-        <Label>Dietary restrictions</Label>
-        <div className="flex flex-wrap gap-2 mb-3">
-          {d.dietary_restrictions.map(r => (
-            <button type="button" key={r} onClick={() => removeDiet(r)} className="rounded-full border border-lime-300 bg-lime-300/10 px-4 py-1.5 text-sm font-medium text-lime-200 transition hover:bg-lime-300/20">{r} ✕</button>
-          ))}
+      </section>
+
+      {/* CONTEXT */}
+      <section className="bg-surface rounded-xl border border-border p-5 sm:p-6 shadow-sm">
+        <h3 className="text-sm font-bold text-forest mb-4 border-b border-border pb-2">4. CLIMATE & CULTURE</h3>
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div><label className="clinical-label">City</label><input className="clinical-input" type="text" value={d.city} onChange={e => set("city", e.target.value)} /></div>
+          <div><label className="clinical-label">Country</label><input className="clinical-input" type="text" value={d.country} onChange={e => set("country", e.target.value)} /></div>
         </div>
-        <div className="flex gap-2">
-          <input className={`${field} py-2`} type="text" placeholder="e.g. Halal, Vegan..." value={customDiet} onChange={(e) => setCustomDiet(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustomDiet())} />
-          <button type="button" onClick={addCustomDiet} className="rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-white transition hover:bg-white/10">Add</button>
+        <div>
+          <label className="clinical-label">Culture / Ethnicity</label>
+          <select className="clinical-input" value={d.ethnicity} onChange={e => set("ethnicity", e.target.value)}>
+            {ETHNICITIES.map(e => <option key={e} value={e}>{e}</option>)}
+          </select>
         </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div><Label>City</Label><input className={field} type="text" value={d.city} onChange={(e) => set("city", e.target.value)} /></div>
-        <div><Label>Country</Label><input className={field} type="text" value={d.country} onChange={(e) => set("country", e.target.value)} /></div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div><Label>Goal</Label><input className={field} type="text" placeholder="e.g. Lose weight" value={d.goal} onChange={(e) => set("goal", e.target.value)} /></div>
-        <div><Label>Target</Label><input className={field} type="text" placeholder="e.g. 5kg" value={d.goal_amount} onChange={(e) => set("goal_amount", e.target.value)} /></div>
-      </div>
-      <div><Label>Start Date (7-Day Plan)</Label><input className={field} type="date" value={d.start_date} onChange={(e) => set("start_date", e.target.value)} /></div>
-      <div><Label>Ethnic / cultural background</Label>
-        <select className={field} value={d.ethnicity} onChange={(e) => set("ethnicity", e.target.value)}>{ETHNICITIES.map((a) => <option key={a}>{a}</option>)}</select></div>
-      <button disabled={loading} className="glass-button flex w-full items-center justify-center gap-2 rounded-full py-4 text-base font-bold text-neutral-900 transition-all hover:brightness-110 disabled:opacity-70 disabled:hover:scale-100" style={{ background: G }}>
-        {loading ? (
-          <><Loader2 className="animate-spin" size={20} /> Analyzing patient profile…</>
-        ) : (
-          <><Sparkles size={20} /> Generate optimal plan</>
-        )}
+      </section>
+
+      {/* SUBMIT */}
+      <button disabled={loading} className="w-full bg-forest text-white py-3.5 rounded-md font-semibold flex items-center justify-center gap-2 transition-all hover:bg-opacity-90 disabled:opacity-70">
+        {loading ? <><Loader2 className="animate-spin" size={18} /> Processing targets & generating plan...</> : "Run Deterministic Engine & Generate Plan"}
       </button>
     </form>
   );

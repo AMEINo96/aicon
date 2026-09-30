@@ -29,7 +29,7 @@ def test_meal_validator():
     
     # Invalid count
     meals = [
-        Meal(id="1", day="Day 1", slot="Breakfast", name="Eggs", ingredients=["egg"], image_keyword="egg", emoji="O", calories=500, protein=30, carbs=20, fat=20, why="", benefits=[])
+        Meal(id="1", day="Day 1", slot="Breakfast", name="Eggs", ingredients=["egg"], image_keyword="egg", calories=500, protein=30, carbs=20, fat=20, why="", benefits=[])
     ]
     is_valid, msgs = validate_meals(meals, targets, ["peanuts"])
     assert not is_valid
@@ -40,7 +40,7 @@ def test_meal_validator():
     for d in range(7):
         for s in ["Breakfast", "Lunch", "Dinner"]:
             full_meals.append(Meal(
-                id=f"d{d}-{s}", day=f"Day {d+1}", slot=s, name="Test Meal", ingredients=["chicken", "rice"], image_keyword="test", emoji="X",
+                id=f"d{d}-{s}", day=f"Day {d+1}", slot=s, name="Test Meal", ingredients=["chicken", "rice"], image_keyword="test",
                 calories=666, protein=50, carbs=66, fat=22, why="", benefits=[]
             ))
             

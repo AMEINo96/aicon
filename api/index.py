@@ -98,7 +98,7 @@ def generate_meal_plan(patient: PatientIntake):
     Ensure the sum of the 3 meals EACH DAY roughly aligns with these daily targets.
     3. INGREDIENTS & SAFETY: You MUST populate the `ingredients` array for each meal. Be completely exhaustive so the validator can check for allergies. ZERO cross-contamination.
     4. CULTURAL & CLIMATE MATCH: Recommend meals suited to `{patient.ethnicity}` cuisine and the provided local weather forecast.
-    5. Provide an `emoji` for each meal, and an `image_keyword` (a single word like 'biryani').
+    5. Provide an `image_keyword` (a single word like 'biryani').
     """
 
     # 4. Generate & Validate (Retry Loop)

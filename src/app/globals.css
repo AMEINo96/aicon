@@ -10,26 +10,38 @@
 
 @layer base {
   :root {
-    --background: #09090b;
-    --foreground: #fafafa;
-    --card: #09090b;
-    --card-foreground: #fafafa;
-    --popover: #09090b;
-    --popover-foreground: #fafafa;
-    --primary: #fafafa;
-    --primary-foreground: #18181b;
-    --secondary: #27272a;
-    --secondary-foreground: #fafafa;
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
-    --accent: #27272a;
-    --accent-foreground: #fafafa;
-    --destructive: #7f1d1d;
-    --destructive-foreground: #fafafa;
-    --border: rgba(255, 255, 255, 0.1);
-    --input: rgba(255, 255, 255, 0.1);
-    --ring: #d4d4d8;
-    --radius: 1rem;
+    /* Core variables */
+    --bg: #F9F8F6;
+    --surface: #FFFFFF;
+    --surface-2: #F0EFEA;
+    --forest: #1A362D;
+    --sage: #8A9A86;
+    --climate: #B3CDE0;
+    --heat: #D9886C;
+    --text: #2C2C2C;
+    --muted: #6E6E6E;
+    --border: #E5E4E0;
+    --success: #4A7C59;
+
+    /* Shadcn/Tailwind overrides for Light Theme */
+    --background: var(--bg);
+    --foreground: var(--text);
+    --card: var(--surface);
+    --card-foreground: var(--text);
+    --popover: var(--surface);
+    --popover-foreground: var(--text);
+    --primary: var(--forest);
+    --primary-foreground: #FFFFFF;
+    --secondary: var(--surface-2);
+    --secondary-foreground: var(--forest);
+    --muted: var(--surface-2);
+    --muted-foreground: var(--muted);
+    --accent: var(--sage);
+    --accent-foreground: #FFFFFF;
+    --destructive: var(--heat);
+    --destructive-foreground: #FFFFFF;
+    --ring: var(--forest);
+    --radius: 0.75rem; /* 12px default corner radius */
   }
 }
 
@@ -40,57 +52,41 @@
   body {
     @apply bg-background text-foreground;
   }
+  html { scroll-behavior: smooth; color-scheme: light; }
 }
 
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.animate-marquee { animation: marquee 30s linear infinite; }
-details > summary { list-style: none; }
-details > summary::-webkit-details-marker { display: none; }
-details[open] .chev { transform: rotate(180deg); }
+/* Base custom classes to match the editorial / clinical aesthetic */
 
-@keyframes fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.fade-up { opacity: 0; animation: fade-up .6s cubic-bezier(.2,.7,.2,1) forwards; }
-
-@keyframes aurora-spin {
-  0% { transform: rotate(0deg) translate(2%, 2%) scale(1); }
-  50% { transform: rotate(180deg) translate(-2%, -2%) scale(1.1); }
-  100% { transform: rotate(360deg) translate(2%, 2%) scale(1); }
+.clinical-input {
+  @apply bg-surface text-text border border-border rounded-md px-3 py-2 text-sm transition-all focus:border-forest focus:ring-1 focus:ring-forest outline-none w-full;
 }
 
-.aurora-bg {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  overflow: hidden;
-  background: #050505;
+.clinical-label {
+  @apply text-xs font-semibold uppercase tracking-wider text-muted mb-1.5 block;
 }
 
-.aurora-bg::before, .aurora-bg::after {
-  content: '';
-  position: absolute;
-  inset: -50%;
-  opacity: 0.6;
-  background: radial-gradient(circle at 50% 50%, rgba(185, 217, 90, 0.15) 0%, transparent 40%),
-              radial-gradient(circle at 80% 20%, rgba(50, 150, 100, 0.1) 0%, transparent 35%);
-  animation: aurora-spin 25s linear infinite;
-  pointer-events: none;
+.clinical-card {
+  @apply bg-surface rounded-[16px] border border-border shadow-sm p-5 sm:p-7;
 }
 
-.aurora-bg::after {
-  background: radial-gradient(circle at 30% 70%, rgba(185, 217, 90, 0.1) 0%, transparent 45%);
-  animation: aurora-spin 35s linear infinite reverse;
+.editorial-title {
+  @apply font-sans font-bold tracking-tight text-forest;
 }
 
-.glass-panel {
-  @apply bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-2xl;
+.metric-value {
+  @apply font-mono font-medium tracking-tight text-forest;
 }
 
-.glass-input {
-  @apply bg-black/20 backdrop-blur-md border border-white/10 text-white transition-all duration-300 focus:bg-white/5 focus:border-[#b9d95a]/50 focus:ring-4 focus:ring-[#b9d95a]/20 hover:border-white/30 outline-none;
+/* Subtle image hover zoom */
+.image-zoom-hover {
+  @apply transition-transform duration-500 hover:scale-[1.03];
 }
 
-.glass-button {
-  @apply relative overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(185,217,90,0.15)] hover:shadow-[0_0_25px_rgba(185,217,90,0.3)];
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
-
-html { scroll-behavior: smooth; color-scheme: dark; background: #050505; }
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

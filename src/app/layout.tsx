@@ -26,12 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-transparent`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-bg text-text`}
       >
-        <div className="aurora-bg" />
-        <div className="relative z-10">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );

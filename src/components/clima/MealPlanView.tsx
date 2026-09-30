@@ -1,149 +1,158 @@
 "use client";
 import { useState } from "react";
-import { CalendarDays, ShieldCheck } from "lucide-react";
+import { type PlanResponse, type Meal } from "@/lib/mock";
 import { motion, AnimatePresence } from "framer-motion";
-import type { PlanResponse, DayPlan, Meal } from "@/lib/mock";
-import { ACCENT } from "@/lib/theme";
-import MealDetail from "./MealDetail";
+import { ChevronRight, X } from "lucide-react";
 
-const SLOT_ICON: Record<string, string> = { Breakfast: "☕", Lunch: "🥗", Dinner: "🍗" };
+export default function MealPlanView({ plan }: { plan: PlanResponse }) {
+  const [selectedDay, setSelectedDay] = useState(0);
+  const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
 
-export default function MealPlanView({ plan, subtitle }: { plan: PlanResponse; subtitle?: string }) {
-  const [dayIdx, setDayIdx] = useState(0);
-  const [openMeal, setOpenMeal] = useState<Meal | null>(null);
-
-  const days = plan.meal_plan.days;
-  const currentDay: DayPlan = days[dayIdx];
-  const tdee = plan.nutrition.target_calories;
-  const validation = plan.meal_plan.overall_validation;
-
-  // Flatten meals for the MealDetail carousel navigation
-  const allMeals = days.flatMap(d => d.meals);
-  const openIdx = openMeal ? allMeals.findIndex(m => m.id === openMeal.id) : -1;
-  const goPrev = () => { if (openIdx >= 0) setOpenMeal(allMeals[(openIdx - 1 + allMeals.length) % allMeals.length]); };
-  const goNext = () => { if (openIdx >= 0) setOpenMeal(allMeals[(openIdx + 1) % allMeals.length]); };
+  const days = plan.plan;
+  const currentDay = days[selectedDay];
 
   return (
-    <div>
-      {/* Top navigation: Day 1 - Day 7 */}
-      <nav aria-label="Select day" className="sticky top-[4.5rem] z-20 -mx-5 mb-6 border-b border-white/10 bg-black/60 px-5 py-3 backdrop-blur-xl rounded-b-xl lg:-mx-0 lg:rounded-xl lg:border">
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {days.map((d, i) => {
-            const on = i === dayIdx;
-            return (
-              <button key={d.date} onClick={() => setDayIdx(i)} aria-current={on ? "page" : undefined}
-                className={`relative flex min-w-[80px] flex-1 flex-col items-center rounded-xl px-3 py-2.5 text-sm font-bold transition-colors ${on ? "text-neutral-900" : "text-neutral-300 hover:text-white hover:bg-white/5"}`}
-              >
-                {on && (
-                  <motion.div
-                    layoutId="day-indicator"
-                    className="absolute inset-0 rounded-xl"
-                    style={{ background: ACCENT }}
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-                <span className="relative z-10">{d.day_label}</span>
-                <span className={`relative z-10 text-[10px] uppercase tracking-wider ${on ? "text-neutral-700" : "text-neutral-500"}`}>{d.date}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+    <div className="flex flex-col gap-8">
+      {/* 7-DAY NAVIGATION STRIP */}
+      <div className="flex overflow-x-auto scrollbar-hide gap-3 pb-2">
+        {days.map((day, idx) => {
+          const isSelected = selectedDay === idx;
+          const dayTemp = plan.weather.forecast[idx]?.temperature_max || "--";
+          
+          return (
+            <button
+              key={idx}
+              onClick={() => setSelectedDay(idx)}
+              className={`flex-shrink-0 flex flex-col items-center justify-center w-20 h-24 rounded-xl border transition-all ${
+                isSelected 
+                  ? "bg-forest border-forest text-white shadow-md" 
+                  : "bg-surface border-border text-muted hover:border-forest/30"
+              }`}
+            >
+              <span className="text-xs font-bold uppercase tracking-wider mb-1">Day {idx + 1}</span>
+              <span className={`font-mono text-xl ${isSelected ? "text-white" : "text-forest"}`}>{dayTemp}°</span>
+            </button>
+          );
+        })}
+      </div>
 
-      {/* Day Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={dayIdx}
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -10 }}
-          transition={{ duration: 0.3 }}
-          id="weekly-plan" 
-          className="glass-panel p-4 sm:p-7 rounded-3xl"
-        >
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h3 className="flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
-                <CalendarDays size={22} style={{ color: ACCENT }} /> {currentDay.day_label} <span className="text-white/20">|</span> {currentDay.date}
-              </h3>
-              <p className="mt-1 text-xs text-neutral-400 font-medium">ClimaDiet{subtitle ? ` - ${subtitle}` : ""} - Target {tdee.toLocaleString()} kcal/day</p>
-              {currentDay.weather && (
-                <p className="mt-1 text-xs text-blue-300">
-                  Weather Forecast: High {currentDay.weather.temperature_max}°C | Low {currentDay.weather.temperature_min}°C
+      {/* MEAL CARDS (Editorial Layout) */}
+      <div className="grid md:grid-cols-3 gap-6">
+        <AnimatePresence mode="wait">
+          {currentDay.meals.map((meal, idx) => (
+            <motion.div
+              key={meal.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ delay: idx * 0.1 }}
+              className="group cursor-pointer flex flex-col bg-surface rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-all"
+              onClick={() => setSelectedMeal(meal)}
+            >
+              <div className="relative aspect-[4/3] bg-surface-2 overflow-hidden">
+                <img 
+                  src={meal.image || "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800"} 
+                  alt={meal.name}
+                  className="w-full h-full object-cover image-zoom-hover"
+                />
+                <div className="absolute top-3 left-3 bg-surface/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-forest border border-border/50 shadow-sm">
+                  {meal.slot}
+                </div>
+              </div>
+              
+              <div className="p-5 flex flex-col flex-1">
+                <h4 className="editorial-title text-xl mb-1">{meal.name}</h4>
+                <div className="text-sm font-mono text-muted mb-4">{meal.calories} kcal · {meal.protein}g protein</div>
+                
+                <p className="text-sm text-muted line-clamp-2 mb-4 flex-1">
+                  {meal.why}
                 </p>
-              )}
-            </div>
-            
-            <div className="flex flex-col items-end gap-2">
-              <span className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold shadow-sm ${validation.valid ? 'bg-lime-500/10 border-lime-500/20 text-lime-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
-                <ShieldCheck size={14} /> 
-                {validation.valid ? "Decision-support validation complete" : "Validation Failed"}
-              </span>
-            </div>
-          </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-white/10 bg-black/20">
-            <table className="w-full min-w-[600px] border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-white/5 text-xs uppercase tracking-wider text-neutral-400">
-                  <th className="px-4 py-4 font-semibold">Meal</th>
-                  <th className="px-4 py-4 font-semibold">Dish</th>
-                  <th className="px-4 py-4 text-right font-semibold">Kcal</th>
-                  <th className="px-4 py-4 text-right font-semibold">Protein</th>
-                  <th className="px-4 py-4 text-right font-semibold">Carbs</th>
-                  <th className="px-4 py-4 text-right font-semibold">Fat</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentDay.meals.map((m, rowIdx) => (
-                  <motion.tr 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: rowIdx * 0.05 }}
-                    key={m.id} 
-                    onClick={() => setOpenMeal(m)} 
-                    className="group cursor-pointer border-b border-white/5 transition-colors hover:bg-white/[0.04] last:border-0"
-                  >
-                    <th scope="row" className="whitespace-nowrap px-4 py-3.5 text-sm font-bold text-white/90">
-                      <span className="mr-2 inline-block rounded-md bg-white/10 px-2 py-1 text-xs">{SLOT_ICON[m.slot] || "🍲"}</span> 
-                      {m.slot}
-                    </th>
-                    <td className="px-4 py-3.5 text-neutral-300 group-hover:text-white transition-colors">
-                      <div className="flex items-center gap-2">
-                        {m.emoji} <span className="truncate max-w-[200px]">{m.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 text-right font-medium text-white/90">{m.calories}</td>
-                    <td className="px-4 py-3.5 text-right text-neutral-400">{m.protein}g</td>
-                    <td className="px-4 py-3.5 text-right text-neutral-400">{m.carbs}g</td>
-                    <td className="px-4 py-3.5 text-right text-neutral-400">{m.fat}g</td>
-                  </motion.tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="bg-white/[0.02]">
-                  <th colSpan={2} className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">Validated Daily Totals</th>
-                  <td className="px-4 py-4 text-right font-bold text-white" style={{ color: ACCENT }}>{currentDay.daily_totals.calories}</td>
-                  <td className="px-4 py-4 text-right font-bold text-white/90">{currentDay.daily_totals.protein_g}g</td>
-                  <td className="px-4 py-4 text-right font-bold text-white/90">{currentDay.daily_totals.carbs_g}g</td>
-                  <td className="px-4 py-4 text-right font-bold text-white/90">{currentDay.daily_totals.fat_g}g</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+                <div className="flex items-center text-xs font-bold uppercase tracking-wider text-forest group-hover:text-sage transition-colors mt-auto pt-4 border-t border-border">
+                  View details <ChevronRight size={14} className="ml-1" />
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* MEAL DETAIL MODAL */}
       <AnimatePresence>
-        {openMeal && (
-          <MealDetail 
-            meal={openMeal} 
-            tdee={tdee}
-            index={openIdx}
-            total={allMeals.length}
-            onClose={() => setOpenMeal(null)}
-            onPrev={goPrev}
-            onNext={goNext}
-          />
+        {selectedMeal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-surface w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl flex flex-col md:flex-row relative"
+            >
+              <button 
+                onClick={() => setSelectedMeal(null)}
+                className="absolute top-4 right-4 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="md:w-1/2 aspect-square md:aspect-auto relative bg-surface-2">
+                <img 
+                  src={selectedMeal.image || "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800"} 
+                  alt={selectedMeal.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="md:w-1/2 p-8 md:p-10 flex flex-col">
+                <div className="text-xs font-bold uppercase tracking-wider text-muted mb-2">{selectedMeal.slot}</div>
+                <h2 className="editorial-title text-3xl mb-4">{selectedMeal.name}</h2>
+                
+                <div className="flex gap-4 mb-8 pb-6 border-b border-border">
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-muted">Calories</div>
+                    <div className="font-mono text-lg text-forest">{selectedMeal.calories}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-muted">Protein</div>
+                    <div className="font-mono text-lg text-forest">{selectedMeal.protein}g</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-muted">Carbs</div>
+                    <div className="font-mono text-lg text-forest">{selectedMeal.carbs}g</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-muted">Fat</div>
+                    <div className="font-mono text-lg text-forest">{selectedMeal.fat}g</div>
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-forest mb-2">Ingredients</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedMeal.ingredients?.map((ing, i) => (
+                      <span key={i} className="text-xs font-medium px-2 py-1 bg-surface-2 rounded-md border border-border text-muted">
+                        {ing}
+                      </span>
+                    )) || <span className="text-sm text-muted">No ingredients listed.</span>}
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-forest mb-2">Why this meal?</h4>
+                  <p className="text-sm text-muted leading-relaxed">{selectedMeal.why}</p>
+                </div>
+
+                <div className="mt-auto pt-6">
+                  <ul className="space-y-2">
+                    {selectedMeal.benefits.map((b, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-muted">
+                        <span className="text-success mt-0.5">•</span> {b}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

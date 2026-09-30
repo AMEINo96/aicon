@@ -28,7 +28,7 @@ class Meal(BaseModel):
     ingredients: List[str] = Field(..., description="List of all main ingredients to allow strict allergy validation")
     image_keyword: str = Field(..., description="1-2 word search term for the image (e.g. 'biryani', 'salad')")
     image: Optional[str] = Field(None, description="Image URL populated by backend")
-    emoji: str = Field(..., description="A single emoji representing the meal")
+    emoji: Optional[str] = Field(None, description="A single emoji representing the meal (deprecated)")
     calories: int = Field(..., description="Estimated calories")
     protein: int = Field(..., description="Protein in grams")
     carbs: int = Field(..., description="Carbohydrates in grams")

@@ -1,226 +1,147 @@
-import type React from "react";
 import Link from "next/link";
-import { ACCENT } from "@/lib/theme";
-import {
-  Thermometer, MapPin, Users, HeartPulse, Sun, ChefHat, ShieldCheck, Droplets, Calculator,
-  Globe, Utensils, Stethoscope, ChevronDown, Leaf, ClipboardList,
-} from "lucide-react";
+import { ArrowRight, Thermometer, ShieldCheck, MapPin } from "lucide-react";
 
-const G = ACCENT; // accent lime
-
-const personal = [
-  { t: "Climate-aware", d: "40°C in Lahore is not 8°C in London", i: Thermometer, bg: "bg-white/[0.05]" },
-  { t: "Region-aware", d: "Foods that are local, available and affordable", i: MapPin, bg: "bg-white/[0.05]" },
-  { t: "Culture-aware", d: "Respects ethnic and cultural eating habits", i: Users, bg: "bg-white/[0.05]" },
-  { t: "Condition-safe", d: "Checked against diabetes, BP, PCOS and more", i: HeartPulse, bg: "bg-white/[0.05]" },
-];
-const CARD_VISUALS: React.ReactNode[] = [
-  <div key="a" className="flex h-full flex-col justify-center gap-2 text-sm">
-    {[["Lahore · 40°C", "Cooling & hydrating"], ["London · 8°C", "Warm & filling"]].map(([a, b]) => (
-      <div key={a} className="flex items-center justify-between rounded-xl bg-white/10 px-3 py-2"><b>{a}</b><span className="text-neutral-500">{b}</span></div>
-    ))}
-  </div>,
-  <div key="b" className="flex h-full flex-wrap content-center gap-2 text-sm">
-    {["Daal", "Daliya", "Sattu", "Raita", "Chana", "Roti"].map((f) => <span key={f} className="rounded-full bg-white/10 px-3 py-1.5 font-medium">{f}</span>)}
-  </div>,
-  <div key="c" className="flex h-full flex-col justify-center gap-2 text-sm">
-    {["Diabetes: low GI only", "Hypertension: low sodium", "PCOS: balanced carbs"].map((c) => (
-      <div key={c} className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2"><ShieldCheck size={16} style={{ color: G }} />{c}</div>
-    ))}
-  </div>,
-];
-const plans = [
-  { t: "Climate-smart Meal Plans", d: "Hydrating and cooling in the heat, warming in the cold", i: Sun },
-  { t: "Local Foods & Recipes", d: "Daal, daliya, sattu, raita and more, not imported diets", i: ChefHat },
-  { t: "Clinically Safe Advice", d: "Every suggestion respects the patient's conditions", i: ShieldCheck },
-];
-const stats = [
-  { v: "6", l: "climate locations", i: Thermometer },
-  { v: "9", l: "cultural backgrounds", i: Globe },
-  { v: "6", l: "clinical conditions", i: Stethoscope },
-  { v: "5", l: "activity levels", i: Calculator },
-];
-const features = [
-  ["Climate Check", Thermometer], ["Hydration Guidance", Droplets], ["Local Food Swaps", Utensils],
-  ["Calorie & TDEE", Calculator], ["Macro Breakdown", ClipboardList], ["Heat-safe Plans", Sun],
-  ["Diabetes Friendly", HeartPulse], ["Cultural Foods", Globe], ["Nutritionist Review", Stethoscope],
-] as const;
-const examples = [
-  ["Lahore, 40°C", "Cooling, hydrating choices: lemon-mint water, sattu drink, raita and light grilled protein. No heavy caffeine loading."],
-  ["London, 8°C", "Warm meals and hot drinks suit the cold. Standard Western weight-loss advice is a better fit here."],
-  ["Dubai, 42°C", "Focus on electrolytes, water-rich foods and lighter meals; avoid dehydrating routines."],
-];
-const faqs = [
-  ["Why does region matter for a diet plan?", "Most diet advice is written for cold, Western countries. Heat, humidity, local foods and cultural eating habits all change what is safe and realistic."],
-  ["How does ClimaDiet use ethnic and cultural background?", "It helps suggest familiar, available foods and accounts for known differences in nutrition risk between populations, without relying on stereotypes."],
-  ["Does it replace a nutritionist?", "No. It is a decision-support tool. A qualified nutritionist reviews and prescribes the final plan."],
-  ["What does it calculate?", "Your daily energy needs (TDEE), a protein, carb and fat split, and a list of climate-suitable foods with the reasoning."],
-  ["Is it safe with medical conditions?", "Conditions such as diabetes are part of the intake, and suggestions are filtered accordingly. Always confirm with your practitioner."],
-];
-const MENUS = [
-  ["Solutions", [["Climate-aware", "#solutions"], ["Region-aware", "#solutions"], ["Culture-aware", "#solutions"], ["Condition-safe", "#solutions"]]],
-  ["Features", [["Climate meal plans", "#plans"], ["Everything included", "#features"], ["Try the patient intake", "/dashboard"]]],
-  ["Resources", [["Regional examples", "#examples"], ["FAQ", "#faq"], ["Contact", "#footer"]]],
-];
-const cols = [
-  ["Product", ["Patient Intake", "Macro Scorecard", "Climate Meal Plans", "Cultural Food Swaps"]],
-  ["Regions", ["Pakistan", "Middle East", "United Kingdom", "More coming soon"]],
-  ["Conditions", ["Diabetes", "Hypertension", "PCOS", "Thyroid"]],
-  ["Company", ["About Us", "Contact Us", "Terms of Service", "Privacy Policy"]],
-];
-
-function Phone({ className = "" }: { className?: string }) {
+export default function LandingPage() {
   return (
-    <div className={`mx-auto w-[270px] overflow-hidden rounded-[2.5rem] border-[8px] border-neutral-800 bg-[#141416] shadow-2xl ${className}`}>
-      <div className="grid h-32 place-items-center bg-gradient-to-br from-lime-900/60 to-neutral-900 text-6xl">🥣</div>
-      <div className="space-y-2 p-4 text-left">
-        <p className="text-center text-base font-bold text-white">Vegetable Daliya</p>
-        <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-          <div><p className="text-[11px] text-neutral-400">Total Calories</p><p className="text-2xl font-medium text-white">385 <span className="text-xs text-neutral-400">Kcal</span></p></div>
-          <div className="grid h-12 w-12 place-items-center rounded-full border-4 text-[10px] font-semibold text-white" style={{ borderColor: G }}>17%</div>
+    <main className="min-h-screen bg-bg text-text">
+      {/* Editorial Header */}
+      <header className="border-b border-border bg-surface sticky top-0 z-50">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-12">
+          <Link href="/" className="editorial-title text-xl">ClimaDiet</Link>
+          <nav className="flex items-center gap-6 text-sm font-semibold text-muted">
+            <Link href="/dashboard" className="text-forest hover:text-opacity-80">Dashboard</Link>
+          </nav>
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
-          {[["Protein", "19%"], ["Fat", "28%"], ["Carbs", "70%"]].map(([a, b]) => (
-            <div key={a} className="rounded-xl border border-white/10 bg-white/[0.04] py-2 text-neutral-400"><b className="block text-sm text-white">{b}</b>{a}</div>
-          ))}
-        </div>
-        <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2.5 text-[11px] text-neutral-300"><b style={{ color: G }}>Why this meal?</b><br />Slow-release carbs suit a diabetes-safe plan in the heat.</div>
-      </div>
-    </div>
-  );
-}
+      </header>
 
-export default function Landing() {
-  return (
-    <div className="min-h-screen bg-[#0b0b0d] text-neutral-100">
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0b0b0d]/80 backdrop-blur">
-        <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <Link href="/" className="flex items-center gap-2 text-xl font-extrabold"><Leaf style={{ color: G }} /> ClimaDiet</Link>
-          <div className="hidden gap-2 text-sm font-medium text-neutral-400 md:flex">
-            {MENUS.map(([label, items]) => (
-              <div key={label as string} className="group relative">
-                <button className="flex items-center gap-1 rounded-full px-4 py-2 hover:bg-white/10 hover:text-white">{label as string}<ChevronDown size={14} className="transition group-hover:rotate-180 group-focus-within:rotate-180" /></button>
-                <div className="invisible absolute left-0 top-full z-40 w-56 translate-y-1 rounded-2xl border border-white/10 bg-[#151518] p-2 opacity-0 shadow-xl transition group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
-                  {(items as string[][]).map(([t, href]) => (
-                    <a key={t} href={href} className="block rounded-xl px-3 py-2 text-neutral-300 hover:bg-white/10 hover:text-white">{t}</a>
-                  ))}
+      {/* SECTION 1: Asymmetrical Hero */}
+      <section className="mx-auto max-w-7xl px-6 lg:px-12 py-16 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="max-w-2xl">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-forest leading-[1.1] mb-6">
+              Nutrition that understands your climate.
+            </h1>
+            <p className="text-lg text-muted mb-8 leading-relaxed">
+              Personalized meal plans built around your health goals, local foods, cultural habits, and the conditions outside your window.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link href="/dashboard" className="inline-flex items-center gap-2 bg-forest text-white px-6 py-3.5 rounded-md font-semibold hover:bg-opacity-90 transition-all">
+                Enter Nutritionist Workspace <ArrowRight size={18} />
+              </Link>
+            </div>
+          </div>
+          
+          <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-surface-2 shadow-lg">
+            <img 
+              src="https://images.unsplash.com/photo-1626200419199-391ae4be7a41?auto=format&fit=crop&q=80&w=1200" 
+              alt="Fresh, healthy South Asian cuisine"
+              className="object-cover w-full h-full"
+            />
+            {/* Overlay module */}
+            <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:w-72 bg-surface/95 backdrop-blur-sm p-4 rounded-xl border border-white/20 shadow-xl">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-muted">Context</div>
+                  <div className="text-forest font-semibold flex items-center gap-1 mt-0.5"><MapPin size={14}/> Lahore</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs font-bold uppercase tracking-wider text-muted">Temp</div>
+                  <div className="text-heat font-bold flex items-center gap-1 mt-0.5"><Thermometer size={14}/> 38°C</div>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-border">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-muted mb-1.5">Plan Response</div>
+                <div className="flex justify-between text-sm font-medium text-forest">
+                  <span>Hydration</span> <span className="text-climate">↑</span>
+                </div>
+                <div className="flex justify-between text-sm font-medium text-forest">
+                  <span>Cooling foods</span> <span className="text-climate">↑</span>
+                </div>
+                <div className="flex justify-between text-sm font-medium text-forest">
+                  <span>Heavy meals</span> <span className="text-heat">↓</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2: One patient. Four signals. */}
+      <section className="bg-surface py-20 lg:py-32 border-t border-border">
+        <div className="mx-auto max-w-7xl px-6 lg:px-12">
+          <div className="text-center mb-16">
+            <h2 className="editorial-title text-3xl md:text-4xl mb-4">One patient. Four signals.</h2>
+            <p className="text-muted max-w-2xl mx-auto">A clinical meal plan is more than just hitting a caloric target. We synthesize four critical dimensions to generate realistic, safe, and culturally relevant recommendations.</p>
+          </div>
+          
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { title: "Health", desc: "BMI, TDEE, underlying conditions, and allergies." },
+              { title: "Climate", desc: "Local real-time weather and temperature trends." },
+              { title: "Culture", desc: "Ethnic background and dietary preferences." },
+              { title: "Nutrition", desc: "Deterministic macronutrient and calorie targets." }
+            ].map((s, i) => (
+              <div key={i} className="clinical-card flex flex-col items-start border-t-4 border-t-forest">
+                <h3 className="text-lg font-bold text-forest mb-2">{s.title}</h3>
+                <p className="text-sm text-muted leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: The same calorie target... */}
+      <section className="py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-12">
+          <div className="mb-12">
+            <h2 className="editorial-title text-3xl md:text-4xl mb-4">The same target looks very different.</h2>
+            <p className="text-muted">A 2,000 kcal diet shouldn&apos;t look the same in London as it does in Dubai.</p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { city: "Lahore", temp: "38°C", img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800", note: "Cooling Daal & Raita" },
+              { city: "London", temp: "8°C", img: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&q=80&w=800", note: "Warm Lentil Stew" },
+              { city: "Dubai", temp: "42°C", img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800", note: "Hydrating Watermelon Salad" },
+            ].map((c) => (
+              <div key={c.city} className="group relative rounded-xl overflow-hidden aspect-[3/4] bg-surface-2 border border-border">
+                <img src={c.img} alt={c.note} className="object-cover w-full h-full image-zoom-hover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-6 left-6 right-6 text-white">
+                  <div className="flex justify-between items-end mb-2">
+                    <div className="font-bold text-2xl">{c.city}</div>
+                    <div className="font-mono text-lg">{c.temp}</div>
+                  </div>
+                  <div className="text-sm font-medium text-white/80">{c.note}</div>
                 </div>
               </div>
             ))}
           </div>
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            <Link href="/dashboard" className="rounded-full px-4 py-2 hover:bg-white/10">Log In</Link>
-            <Link href="/dashboard" className="rounded-full px-5 py-2 text-neutral-900" style={{ background: G }}>Get Started</Link>
-          </div>
-        </nav>
-      </header>
-
-      <section className="mx-auto max-w-6xl px-5 pb-20 pt-16 text-center">
-        <h1 className="mx-auto max-w-3xl text-balance text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl">
-          Diet Plans That Fit <span style={{ color: G }}>Where You Live</span>
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-neutral-400">
-          AI nutrition plans based on your climate, region, cultural background and health conditions, so a 40°C summer never gets a cold-country prescription.
-        </p>
-        <div className="mt-8 flex items-center justify-center gap-8 text-sm">
-          <div><b className="block text-2xl">Climate</b>heat, cold, humidity</div>
-          <div className="h-10 w-px bg-white/10" />
-          <div><b className="block text-2xl">Culture</b>local foods and habits</div>
         </div>
-        <Link href="/dashboard" className="mt-8 inline-block rounded-full px-10 py-4 text-lg font-bold text-neutral-900 shadow-lg" style={{ background: G }}>Get Started</Link>
-        <div className="mt-14 rounded-[2rem] bg-gradient-to-b from-white/[0.06] to-transparent px-4 pb-0 pt-10"><Phone /></div>
-        <p className="mt-10 text-sm font-medium text-neutral-500">Built for nutritionists and their clients</p>
       </section>
 
-      <section id="solutions" className="scroll-mt-16 bg-white/[0.02] py-20">
-        <div className="mx-auto max-w-6xl px-5">
-          <h2 className="text-center text-4xl font-extrabold md:text-5xl">Nutrition Advice,<br />Made Local</h2>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {personal.map(({ t, d, i: I, bg }) => (
-              <div key={t} className={`flex h-80 flex-col justify-between rounded-3xl border border-white/10 p-6 ${bg}`}>
-                <div><h3 className="text-xl font-bold">{t}</h3><p className="mt-1 text-sm text-neutral-400">{d}</p></div>
-                <div className="grid h-32 place-items-center rounded-2xl bg-black/30"><I size={44} style={{ color: G }} /></div>
-              </div>
+      {/* SECTION 6: Trust / Clinical safety */}
+      <section className="bg-surface py-20 border-t border-border">
+        <div className="mx-auto max-w-4xl px-6 text-center">
+          <ShieldCheck size={48} className="mx-auto text-sage mb-6" />
+          <h2 className="editorial-title text-3xl mb-6">Decision-support for qualified nutritionists.</h2>
+          <p className="text-muted text-lg mb-8 leading-relaxed">
+            ClimaDiet does not rely on LLMs to calculate nutritional targets. Deterministic Python calculations establish BMR and Macros, while automated checks ensure the generated plan strictly adheres to all dietary constraints and explicit allergens.
+          </p>
+          <div className="inline-flex flex-wrap justify-center gap-3">
+            {["Nutrition targets", "Dietary restrictions", "Explicit allergens", "Meal count"].map(check => (
+              <span key={check} className="px-4 py-2 bg-surface-2 rounded-full text-xs font-bold uppercase tracking-wider text-forest border border-border">
+                ✓ {check} checked
+              </span>
             ))}
           </div>
         </div>
       </section>
-
-      <section id="plans" className="scroll-mt-16 py-20">
-        <div className="mx-auto max-w-6xl px-5">
-          <h2 className="text-center text-4xl font-extrabold md:text-5xl">Meal Plans<br />Tailored for You</h2>
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
-            {plans.map(({ t, d, i: I }, n) => (
-              <div key={t} className="rounded-3xl border border-white/10 bg-white/[0.02] p-7">
-                <I size={30} style={{ color: G }} />
-                <h3 className="mt-6 text-xl font-bold">{t}</h3><p className="mt-1 text-neutral-400">{d}</p>
-                <div className="mt-6 h-40 rounded-2xl bg-gradient-to-br from-white/[0.06] to-white/[0.12] p-4">{CARD_VISUALS[n]}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16" style={{ background: G }}>
-        <div className="mx-auto max-w-6xl px-5 text-center text-neutral-900">
-          <h2 className="text-3xl font-extrabold md:text-4xl">What the plan takes into account</h2>
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map(({ v, l, i: I }) => (
-              <div key={l}><I className="mx-auto" size={32} /><b className="mt-3 block text-5xl">{v}</b><span className="opacity-90">{l}</span></div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="features" className="scroll-mt-16 overflow-hidden py-20">
-        <h2 className="text-center text-4xl font-extrabold">Everything a nutritionist needs</h2>
-        <div className="mt-10 flex w-max animate-marquee gap-4">
-          {[...features, ...features].map(([n, I], k) => (
-            <div key={k} className="flex w-56 flex-col items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-center font-semibold">
-              <I size={34} style={{ color: G }} />{n}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section id="examples" className="scroll-mt-16 bg-white/[0.02] py-20">
-        <div className="mx-auto max-w-6xl px-5">
-          <h2 className="text-center text-4xl font-extrabold md:text-5xl">Same goal,<br />different prescription</h2>
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
-            {examples.map(([place, text]) => (
-              <figure key={place} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-                <figcaption className="flex items-center gap-2 font-bold"><MapPin size={18} style={{ color: G }} />{place}</figcaption>
-                <blockquote className="mt-3 text-neutral-300">{text}</blockquote>
-              </figure>
-            ))}
-          </div>
-          <p className="mt-6 text-center text-xs text-neutral-400">Illustrative examples of how advice changes by region.</p>
-        </div>
-      </section>
-
-      <section id="faq" className="mx-auto max-w-3xl scroll-mt-16 px-5 py-20">
-        <h2 className="text-center text-4xl font-extrabold">Frequently asked questions</h2>
-        <div className="mt-10 divide-y divide-white/10 border-y border-white/10">
-          {faqs.map(([q, a]) => (
-            <details key={q} className="group py-5">
-              <summary className="flex cursor-pointer items-center justify-between text-lg font-semibold">{q}<ChevronDown className="chev transition-transform" /></summary>
-              <p className="mt-3 text-neutral-600">{a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      <footer id="footer" className="border-t border-white/10 bg-white/[0.02] py-14">
-        <div className="mx-auto grid max-w-6xl gap-10 px-5 sm:grid-cols-2 lg:grid-cols-4">
-          {cols.map(([h, items]) => (
-            <div key={h as string}>
-              <h4 className="font-bold">{h as string}</h4>
-              <ul className="mt-3 space-y-2 text-sm text-neutral-400">{(items as string[]).map((x) => <li key={x} className="hover:text-white">{x}</li>)}</ul>
-            </div>
-          ))}
-        </div>
-        <p className="mx-auto mt-10 max-w-6xl px-5 text-sm text-neutral-500">© {new Date().getFullYear()} ClimaDiet. All rights reserved.</p>
+      
+      {/* Footer */}
+      <footer className="py-8 text-center text-sm text-muted border-t border-border">
+        <p>ClimaDiet. Clinical nutrition decision-support system.</p>
       </footer>
-    </div>
+    </main>
   );
 }
