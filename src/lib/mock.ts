@@ -139,14 +139,14 @@ const MEALS: Meal[] = [
 export const MOCK_PLAN: PlanResponse = { tdee: 2200, protein: 150, carbs: 200, fat: 65, meals: MEALS };
 
 export async function generatePlan(data: IntakeData): Promise<PlanResponse> {
-  const url = process.env.NEXT_PUBLIC_BACKEND_URL;
-  if (url) {
-    try {
-      const r = await fetch(`${url}/generate-plan`, {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
-      });
-      if (r.ok) return await r.json();
-    } catch {}
+  const url = process.env.NEXT_PUBLIC_BACKEND_URL || "/api";
+  try {
+    const r = await fetch(`${url}/generate-plan`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+    });
+    if (r.ok) return await r.json();
+  } catch (e) {
+    console.error("API failed, falling back to mock data", e);
   }
   await new Promise((r) => setTimeout(r, 1200));
   return MOCK_PLAN;

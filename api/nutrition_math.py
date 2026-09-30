@@ -83,14 +83,14 @@ def calculate_bmi(weight_kg: float, height_cm: float) -> Tuple[float, str]:
 
 def get_nutritional_targets(patient: PatientIntake) -> dict:
     """Wrapper function to compute all deterministic math targets."""
-    bmi, bmi_category = calculate_bmi(patient.weight_kg, patient.height_cm)
-    bmr = calculate_bmr(patient.weight_kg, patient.height_cm, patient.age, patient.gender)
-    baseline_tdee = calculate_tdee(bmr, patient.activity_level)
+    bmi, bmi_category = calculate_bmi(patient.weight, patient.height)
+    bmr = calculate_bmr(patient.weight, patient.height, patient.age, patient.gender)
+    baseline_tdee = calculate_tdee(bmr, patient.activity)
     
-    # Adjust for goal
-    target_calories = adjust_calories_for_goal(baseline_tdee, patient.goal)
+    # We will assume a default health optimization goal since the frontend intake removed it
+    target_calories = adjust_calories_for_goal(baseline_tdee, "improve health")
     
-    protein, carbs, fat = calculate_macros(target_calories, patient.clinical_conditions, patient.goal)
+    protein, carbs, fat = calculate_macros(target_calories, patient.conditions, "improve health")
     
     return {
         "bmi": bmi,
