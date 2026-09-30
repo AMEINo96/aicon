@@ -1,62 +1,81 @@
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { Loader2, Soup } from "lucide-react";
 import type { Meal } from "@/lib/mock";
 
-const GRADIENTS = [
-  "from-lime-900/40 to-neutral-900/80", "from-amber-900/40 to-neutral-900/80",
-  "from-emerald-900/40 to-neutral-900/80", "from-orange-900/40 to-neutral-900/80",
-];
+const FALLBACK_URL = "https://image.pollinations.ai/prompt/";
 
-export default function MealImage({ meal, className = "", emojiSize = "text-5xl" }: { meal: Meal; className?: string; emojiSize?: string }) {
-  const [failed, setFailed] = useState(false);
+function makeImageUrl(meal: Meal) {
+  const isMoongDal = /moong|mung|mong/i.test(meal.name) && /dal|daal|lentil/i.test(meal.name);
+  const detail = isMoongDal
+    ? " A bowl of golden yellow split mung bean dal, visibly textured with lentils and cumin tempering, served with rice or roti; not green, not a smooth puree, not broccoli soup."
+    : " The dish must clearly match its name and familiar real-world ingredients; do not substitute another dish.";
+  const prompt = `Authentic home-cooked ${meal.name}.${detail} Realistic food photography, natural daylight, simple tableware, one dish centered, no text, no collage.`;
+  return `${FALLBACK_URL}${encodeURIComponent(prompt)}?width=800&height=600&model=flux&nologo=true`;
+}
+
+export default function MealImage({
+  meal,
+  className = "",
+  emojiSize = "text-5xl",
+}: {
+  meal: Meal;
+  className?: string;
+  emojiSize?: string;
+}) {
+  const sources = Array.from(new Set([meal.image, makeImageUrl(meal)].filter((url): url is string => Boolean(url))));
+  const [sourceIndex, setSourceIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
-  
-  // Create a beautiful prompt for pollinations
-  const encodedPrompt = encodeURIComponent(`A cinematic, highly detailed food photography shot of ${meal.name}, healthy ${meal.slot} meal, dark moody background, studio lighting, 4k resolution`);
-  const imageUrl = meal.image || `https://pollinations.ai/p/${encodedPrompt}?width=800&height=600&model=flux&nologo=true`;
-  const hasImg = !failed;
-  
-  const g = GRADIENTS[parseInt(meal.id.replace(/\D/g, ""), 10) % GRADIENTS.length];
-  
+  const imageUrl = sources[sourceIndex];
+  const hasImage = Boolean(imageUrl);
+
+  useEffect(() => {
+    setSourceIndex(0);
+    setLoaded(false);
+  }, [meal.id]);
+
   return (
-    <div className={`relative overflow-hidden bg-gradient-to-br ${g} rounded-2xl border border-white/10 shadow-lg ${className}`}>
+    <div className={`relative overflow-hidden rounded-2xl border border-border bg-surface-2 ${className}`}>
       <AnimatePresence mode="wait">
-        {hasImg ? (
+        {hasImage ? (
           <motion.div
-            key="image-container"
+            key={`${meal.id}-${sourceIndex}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="absolute inset-0"
           >
             {!loaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-10">
-                <Loader2 className="w-8 h-8 text-white/50 animate-spin" />
+              <div className="absolute inset-0 z-10 grid place-items-center bg-surface-2/80">
+                <Loader2 className="h-7 w-7 animate-spin text-sage" aria-label="Loading food photo" />
               </div>
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={imageUrl} 
-              alt={meal.name} 
-              loading="lazy" 
+            <img
+              src={imageUrl}
+              alt={`Photo of ${meal.name}`}
+              loading="lazy"
               onLoad={() => setLoaded(true)}
-              onError={() => setFailed(true)} 
-              className={`h-full w-full object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`} 
+              onError={() => {
+                setLoaded(false);
+                setSourceIndex((current) => current + 1);
+              }}
+              className={`h-full w-full object-cover transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
             />
-            <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl pointer-events-none" />
           </motion.div>
         ) : (
           <motion.div
-            key="fallback"
+            key={`${meal.id}-placeholder`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className={`absolute inset-0 flex items-center justify-center ${emojiSize}`}
-            aria-label={meal.name}
+            className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#f1eadc] to-[#e4e8dd] p-4 text-center text-forest"
             role="img"
+            aria-label={`Food photo unavailable for ${meal.name}`}
           >
-            {meal.emoji ?? "🍽️"}
-            <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl pointer-events-none" />
+            <Soup className={emojiSize} strokeWidth={1.25} aria-hidden="true" />
+            <span className="text-xs font-semibold">{meal.name}</span>
           </motion.div>
         )}
       </AnimatePresence>

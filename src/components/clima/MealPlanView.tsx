@@ -3,6 +3,7 @@ import { useState } from "react";
 import { type PlanResponse, type Meal } from "@/lib/mock";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, X } from "lucide-react";
+import MealImage from "./MealImage";
 
 export default function MealPlanView({ plan }: { plan: PlanResponse }) {
   const [selectedDay, setSelectedDay] = useState(0);
@@ -12,32 +13,56 @@ export default function MealPlanView({ plan }: { plan: PlanResponse }) {
   const currentDay = days[selectedDay];
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* 7-DAY NAVIGATION STRIP */}
-      <div className="flex overflow-x-auto scrollbar-hide gap-3 pb-2">
+    <div className="flex flex-col gap-5">
+      <section className="clinical-card" aria-label={`Planned nutrition totals for ${currentDay.day_label}`}>
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-2 border-b border-border pb-3">
+          <div>
+            <h3 className="editorial-title text-lg">Planned daily intake</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Estimated totals from all meals for {currentDay.day_label}</p>
+          </div>
+          <span className="text-xs text-muted-foreground">Targets shown underneath</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {[
+            { label: "Calories", actual: `${currentDay.daily_totals.calories} kcal`, target: `${plan.nutrition.target_calories} kcal` },
+            { label: "Protein", actual: `${currentDay.daily_totals.protein_g} g`, target: `${plan.nutrition.protein_g} g` },
+            { label: "Carbohydrates", actual: `${currentDay.daily_totals.carbs_g} g`, target: `${plan.nutrition.carbs_g} g` },
+            { label: "Fat", actual: `${currentDay.daily_totals.fat_g} g`, target: `${plan.nutrition.fat_g} g` },
+          ].map((item) => (
+            <div key={item.label} className="rounded-lg border border-border bg-surface-2/60 p-3">
+              <div className="text-xs font-semibold text-muted-foreground">{item.label}</div>
+              <div className="mt-1 font-mono text-xl font-bold text-forest">{item.actual}</div>
+              <div className="mt-1 text-[11px] text-muted-foreground">Target: {item.target}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* DAY SELECTOR */}
+      <div className="flex overflow-x-auto scrollbar-hide gap-2 pb-1">
         {days.map((day, idx) => {
           const isSelected = selectedDay === idx;
-          const dayTemp = plan.weather.forecast[idx]?.temperature_max || "--";
           
           return (
             <button
-              key={idx}
+              key={day.date}
               onClick={() => setSelectedDay(idx)}
-              className={`flex-shrink-0 flex flex-col items-center justify-center w-20 h-24 rounded-xl border transition-all ${
+              aria-pressed={isSelected}
+              className={`flex-shrink-0 flex flex-col items-center justify-center min-w-24 min-h-16 px-4 rounded-xl border transition-all ${
                 isSelected 
                   ? "bg-forest border-forest text-white shadow-md" 
                   : "bg-surface border-border text-muted-foreground hover:border-forest/30"
               }`}
             >
-              <span className="text-xs font-bold uppercase tracking-wider mb-1">Day {idx + 1}</span>
-              <span className={`font-mono text-xl ${isSelected ? "text-white" : "text-forest"}`}>{dayTemp}°</span>
+              <span className="text-xs font-bold uppercase tracking-wider">{day.day_label}</span>
+              <span className={`mt-1 text-xs ${isSelected ? "text-white/75" : "text-muted-foreground"}`}>{day.date}</span>
             </button>
           );
         })}
       </div>
 
       {/* MEAL CARDS (Editorial Layout) */}
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-3 gap-4">
         <AnimatePresence mode="wait">
           {currentDay.meals.map((meal, idx) => (
             <motion.div
@@ -49,18 +74,14 @@ export default function MealPlanView({ plan }: { plan: PlanResponse }) {
               className="group cursor-pointer flex flex-col bg-surface rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-all"
               onClick={() => setSelectedMeal(meal)}
             >
-              <div className="relative aspect-[4/3] bg-surface-2 overflow-hidden">
-                <img 
-                  src={meal.image || "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800"} 
-                  alt={meal.name}
-                  className="w-full h-full object-cover image-zoom-hover"
-                />
-                <div className="absolute top-3 left-3 bg-surface/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-forest border border-border/50 shadow-sm">
+              <div className="relative">
+                <MealImage meal={meal} className="aspect-[4/3] w-full rounded-none border-0 shadow-none" />
+                <div className="absolute top-3 left-3 rounded-full border border-white/80 bg-forest px-3 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-md">
                   {meal.slot}
                 </div>
               </div>
               
-              <div className="p-5 flex flex-col flex-1">
+              <div className="flex flex-1 flex-col p-4">
                 <h4 className="editorial-title text-xl mb-1">{meal.name}</h4>
                 <div className="text-sm font-mono text-muted-foreground mb-4">{meal.calories} kcal · {meal.protein}g protein</div>
                 
@@ -95,11 +116,7 @@ export default function MealPlanView({ plan }: { plan: PlanResponse }) {
               </button>
 
               <div className="md:w-1/2 aspect-square md:aspect-auto relative bg-surface-2">
-                <img 
-                  src={selectedMeal.image || "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800"} 
-                  alt={selectedMeal.name}
-                  className="w-full h-full object-cover"
-                />
+                <MealImage meal={selectedMeal} className="absolute inset-0 h-full w-full rounded-none border-0 shadow-none" />
               </div>
 
               <div className="md:w-1/2 p-8 md:p-10 flex flex-col">

@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import pathlib
 
 from google import genai
+from google.genai import types
 from pydantic import TypeAdapter
 
 from api.schemas import (
@@ -30,6 +31,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+REGIONAL_FOOD_GUIDANCE = {
+    "pakistan": {
+        "preferred": "everyday Pakistani home foods such as roti/chapati made with atta, basmati rice, moong/masoor/chana dal, chana, eggs, chicken, seasonal sabzi (palak, bhindi, lauki, tori, gobi), dahi/raita, and locally common fruit",
+        "avoid": ["quinoa", "cauliflower rice", "riced cauliflower", "thepla", "kale", "couscous", "avocado", "chia seeds"],
+    },
+    "india": {
+        "preferred": "everyday foods common in the selected Indian region: atta roti, rice, locally common dals, eggs, chicken or fish where appropriate, seasonal sabzi, curd, and local fruit",
+        "avoid": ["quinoa", "cauliflower rice", "riced cauliflower", "kale", "couscous", "avocado", "chia seeds"],
+    },
+    "bangladesh": {
+        "preferred": "everyday Bangladeshi foods such as rice, masoor/moong dal, seasonal vegetables, eggs, locally common fish or chicken, and local fruit",
+        "avoid": ["quinoa", "cauliflower rice", "riced cauliflower", "kale", "couscous", "avocado", "chia seeds"],
+    },
+}
+
+def get_regional_food_guidance(country: str) -> dict:
+    return REGIONAL_FOOD_GUIDANCE.get(country.strip().lower(), {
+        "preferred": f"simple, affordable foods commonly sold in markets in {country}",
+        "avoid": [],
+    })
+
 @app.post("/api/generate-plan", response_model=PlanResponse)
 @app.post("/generate-plan", response_model=PlanResponse)
 def generate_meal_plan(patient: PatientIntake):
@@ -38,7 +60,13 @@ def generate_meal_plan(patient: PatientIntake):
     if not GEMINI_API_KEY:
         raise HTTPException(status_code=500, detail="GEMINI_API_KEY is missing. Please add it to your .env.local file or Vercel Environment Variables.")
 
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    client = genai.Client(
+        api_key=GEMINI_API_KEY,
+        http_options=types.HttpOptions(
+            timeout=15000,
+            retry_options=types.HttpRetryOptions(attempts=1),
+        ),
+    )
     GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
     # 1. Deterministic Math Engine
@@ -73,6 +101,8 @@ def generate_meal_plan(patient: PatientIntake):
         location=weather_data["location"],
         forecast=weather_data["forecast"]
     )
+
+    regional_foods = get_regional_food_guidance(patient.country)
     
     weather_str = "\\n".join([f"Day {i+1} ({w['time']}): High {w['temperature_max']}C" for i, w in enumerate(weather_info.forecast)])
 
@@ -101,7 +131,8 @@ def generate_meal_plan(patient: PatientIntake):
     Ensure the sum of the 3 meals EACH DAY roughly aligns with these daily targets.
     3. INGREDIENTS & SAFETY: You MUST populate the `ingredients` array for each meal. Be completely exhaustive so the validator can check for allergies. ZERO cross-contamination.
     4. CULTURAL & CLIMATE MATCH: Recommend meals suited to `{patient.ethnicity}` cuisine and the provided local weather forecast.
-    5. Provide an `image_keyword` (a single word like 'biryani').
+    5. LOCAL AVAILABILITY: Prioritize these familiar, everyday foods for {patient.country}: {regional_foods['preferred']}. Avoid imported, niche, or substitute ingredients. Do not use these uncommon items unless the patient explicitly asks for them: {', '.join(regional_foods['avoid']) or 'none listed'}.
+    6. Provide an `image_keyword` (a single word like 'biryani').
     """
 
     # 4. Generate & Validate (Retry Loop)
@@ -120,16 +151,15 @@ def generate_meal_plan(patient: PatientIntake):
     import time
     
     # Compact schema description for fallback providers (saves ~3000 tokens vs full JSON schema)
-    compact_schema = """Return a JSON array of 9 meal objects. Each meal: {"id":"day1-breakfast","day":"Day 1","meal_type":"Breakfast","name":"Dish Name","calories":500,"protein":30,"carbs":60,"fat":15,"ingredients":["item1","item2"],"image_keyword":"keyword","climate_note":"why this suits the weather"}. Days: "Day 1","Day 2","Day 3". Meal types: "Breakfast","Lunch","Dinner". 9 meals total."""
+    compact_schema = """Return only a JSON array of exactly 9 meal objects. Each object must have these fields: {"id":"day1-breakfast","day":"Day 1","slot":"Breakfast","name":"Dish Name","ingredients":["item1","item2"],"image_keyword":"keyword","emoji":"🥣","calories":500,"protein":30,"carbs":60,"fat":15,"why":"Why it fits the weather and profile","benefits":["Benefit one","Benefit two"]}. Use days Day 1, Day 2, Day 3 and slots Breakfast, Lunch, Dinner exactly once per day. No markdown."""
     
     def call_ai_agent(prompt: str) -> str:
         """Tries multiple free-tier AI providers sequentially to avoid 429 quota limits."""
         # 1. Primary: Google Gemini (stable generate_content API — uses full schema)
         if GEMINI_API_KEY:
             try:
-                from google.genai import types
                 response = client.models.generate_content(
-                    model="gemini-3.5-flash",
+                    model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
@@ -154,7 +184,7 @@ def generate_meal_plan(patient: PatientIntake):
                             {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
                             {"role": "user", "content": prompt}
                         ]
-                    }, timeout=90
+                    }, timeout=15
                 )
                 if res.status_code == 200: return res.json()["choices"][0]["message"]["content"]
                 else: print(f"OpenRouter returned {res.status_code}: {res.text[:200]}")
@@ -175,13 +205,16 @@ def generate_meal_plan(patient: PatientIntake):
                             {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
                             {"role": "user", "content": prompt}
                         ]
-                    }, timeout=60
+                    }, timeout=15
                 )
                 if res.status_code == 200: return res.json()["choices"][0]["message"]["content"]
                 else: print(f"Groq returned {res.status_code}: {res.text[:200]}")
             except Exception as e: print("Groq failed:", e)
 
-        raise Exception("All AI providers exhausted their Free Tier limits or failed. Please add OPENROUTER_API_KEY or GROQ_API_KEY to .env.local")
+        raise HTTPException(
+            status_code=503,
+            detail="All configured AI providers are unavailable or rate-limited. Please wait a few minutes and try again, or configure another provider key.",
+        )
 
     for attempt in range(MAX_ATTEMPTS):
         try:
@@ -196,7 +229,12 @@ def generate_meal_plan(patient: PatientIntake):
             
             # Validation Step
             restrictions_to_check = patient.allergies + patient.dietary_restrictions
-            is_valid, validation_msgs = validate_meals(meals, targets, restrictions_to_check)
+            is_valid, validation_msgs = validate_meals(
+                meals,
+                targets,
+                restrictions_to_check,
+                disallowed_ingredients=regional_foods["avoid"],
+            )
             
             if is_valid:
                 validation_msgs = ["Nutrition targets verified", "Dietary restrictions checked", "3-day plan generated", "Automated validation passed"]
@@ -205,8 +243,10 @@ def generate_meal_plan(patient: PatientIntake):
             # If invalid, append feedback and retry
             current_prompt = base_prompt + "\\n\\nPREVIOUS ATTEMPT FAILED VALIDATION.\\nProblems:\\n- " + "\\n- ".join(validation_msgs) + "\\n\\nRegenerate the complete meal plan and CORRECT these issues."
             
+        except HTTPException:
+            raise
         except Exception as e:
-            print(f"Gen/Parse Error (Attempt {attempt+1}):", e)
+            print(f"Gen/Parse Error (Attempt {attempt+1}):", str(e).encode('ascii', 'replace').decode())
             if attempt == MAX_ATTEMPTS - 1:
                 raise HTTPException(status_code=502, detail=str(e) if "providers exhausted" in str(e) else "External AI service failed after multiple attempts.")
                 
@@ -215,7 +255,20 @@ def generate_meal_plan(patient: PatientIntake):
 
     # 5. Post-process to inject actual image URLs
     for m in meals:
-        m.image = f"https://image.pollinations.ai/prompt/Delicious%20{urllib.parse.quote(m.name)}%20professional%20food%20photography"
+        visual_detail = ""
+        normalized_name = m.name.lower().replace("daal", "dal")
+        if any(term in normalized_name for term in ("moong", "mung", "mong")) and any(term in normalized_name for term in ("dal", "lentil")):
+            visual_detail = " Yellow split mung beans in a golden, lightly textured curry with visible lentils and a small cumin tempering, served in a simple bowl; not a green soup, not a blended puree."
+        image_prompt = (
+            f"Authentic home-cooked {m.name}. Show exactly the named dish as it is commonly served in {patient.country}, "
+            f"recognizable ingredients and traditional preparation.{visual_detail} "
+            "Photorealistic natural food photography, simple real tableware, soft daylight, appetizing but realistic, "
+            "single dish centered, no text, no collage, no unrelated garnish."
+        )
+        m.image = (
+            "https://image.pollinations.ai/prompt/"
+            f"{urllib.parse.quote(image_prompt, safe='')}?width=800&height=600&model=flux&nologo=true"
+        )
 
     # 6. Assemble Final Payload
     day_plans = structure_day_plans(meals, weather_info.forecast)

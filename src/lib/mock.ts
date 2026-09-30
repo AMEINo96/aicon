@@ -86,17 +86,32 @@ export type PlanResponse = {
 
 export async function generatePlan(data: IntakeData): Promise<PlanResponse> {
   const url = process.env.NEXT_PUBLIC_BACKEND_URL || "/api";
-  
-  const r = await fetch(`${url}/generate-plan`, {
-    method: "POST", 
-    headers: { "Content-Type": "application/json" }, 
-    body: JSON.stringify(data),
-  });
-  
-  if (!r.ok) {
-    const errorData = await r.json().catch(() => ({}));
-    throw new Error(errorData.detail || "Failed to generate plan. Please try again.");
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 90_000);
+
+  try {
+    const r = await fetch(`${url}/generate-plan`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+      signal: controller.signal,
+    });
+
+    const responseData = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      throw new Error(responseData.detail || `Plan generation failed (${r.status}). Please try again.`);
+    }
+
+    return responseData as PlanResponse;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Plan generation timed out after 90 seconds. Check that the API is running and try again.");
+    }
+    if (error instanceof TypeError) {
+      throw new Error("Could not reach the plan generation API. Check that the backend is running, then try again.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-  
-  return await r.json();
 }

@@ -33,11 +33,11 @@ def test_meal_validator():
     ]
     is_valid, msgs = validate_meals(meals, targets, ["peanuts"])
     assert not is_valid
-    assert "Expected exactly 21 meals" in msgs[0]
+    assert "Expected exactly 9 meals" in msgs[0]
 
-    # Valid plan mock (7 days x 3 meals)
+    # Valid plan mock (3 days x 3 meals)
     full_meals = []
-    for d in range(7):
+    for d in range(3):
         for s in ["Breakfast", "Lunch", "Dinner"]:
             full_meals.append(Meal(
                 id=f"d{d}-{s}", day=f"Day {d+1}", slot=s, name="Test Meal", ingredients=["chicken", "rice"], image_keyword="test",
@@ -78,3 +78,13 @@ def test_meal_validator():
     is_valid, msgs = validate_meals(high_fat_meals, targets, [])
     assert not is_valid
     assert any("fat" in m and "outside" in m for m in msgs)
+
+    # Macro out of bounds (carbs too high)
+    high_carb_meals = full_meals.copy()
+    high_carb_meals[0] = Meal(
+        id="hc1", day="Day 1", slot="Breakfast", name="Test Meal", ingredients=["rice"], image_keyword="test",
+        calories=666, protein=50, carbs=200, fat=22, why="", benefits=[]
+    )
+    is_valid, msgs = validate_meals(high_carb_meals, targets, [])
+    assert not is_valid
+    assert any("carbs" in m and "outside" in m for m in msgs)
