@@ -15,7 +15,7 @@ const Label = ({ children }: { children: React.ReactNode }) => <label className=
 export default function ClinicalIntakeForm({ onSubmit, loading }: { onSubmit: (d: IntakeData) => void; loading: boolean }) {
   const [d, setD] = useState<IntakeData>({
     age: 28, weight: 78, height: 172, gender: "Male", activity: ACTIVITY[2],
-    conditions: [], city: "Lahore", country: "Pakistan", ethnicity: ETHNICITIES[0],
+    conditions: [], allergies: [], city: "Lahore", country: "Pakistan", ethnicity: ETHNICITIES[0],
     goal: "Lose weight", goal_amount: "5kg", dietary_restrictions: [],
     start_date: new Date().toISOString().split("T")[0], end_date: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
   });
@@ -101,10 +101,7 @@ export default function ClinicalIntakeForm({ onSubmit, loading }: { onSubmit: (d
         <div><Label>Goal</Label><input className={field} type="text" placeholder="e.g. Lose weight" value={d.goal} onChange={(e) => set("goal", e.target.value)} /></div>
         <div><Label>Target</Label><input className={field} type="text" placeholder="e.g. 5kg" value={d.goal_amount} onChange={(e) => set("goal_amount", e.target.value)} /></div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div><Label>Start Date</Label><input className={field} type="date" value={d.start_date} onChange={(e) => set("start_date", e.target.value)} /></div>
-        <div><Label>End Date</Label><input className={field} type="date" value={d.end_date} onChange={(e) => set("end_date", e.target.value)} /></div>
-      </div>
+      <div><Label>Start Date (7-Day Plan)</Label><input className={field} type="date" value={d.start_date} onChange={(e) => set("start_date", e.target.value)} /></div>
       <div><Label>Ethnic / cultural background</Label>
         <select className={field} value={d.ethnicity} onChange={(e) => set("ethnicity", e.target.value)}>{ETHNICITIES.map((a) => <option key={a}>{a}</option>)}</select></div>
       <button disabled={loading} className="glass-button flex w-full items-center justify-center gap-2 rounded-full py-4 text-base font-bold text-neutral-900 transition-all hover:brightness-110 disabled:opacity-70 disabled:hover:scale-100" style={{ background: G }}>

@@ -9,22 +9,34 @@ import MealPlanView from "@/components/clima/MealPlanView";
 import { generatePlan, type PlanResponse, type IntakeData } from "@/lib/mock";
 import { ACCENT } from "@/lib/theme";
 
+import Scene3D from "@/components/clima/Scene3D";
+
 export default function Dashboard() {
   const [plan, setPlan] = useState<PlanResponse | null>(null);
   const [place, setPlace] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [key, setKey] = useState(0);
 
   const submit = async (d: IntakeData) => {
     setLoading(true);
-    setPlan(await generatePlan(d));
-    setPlace(d.location.split(" (")[0]);
-    setKey((k) => k + 1);
-    setLoading(false);
+    setError(null);
+    try {
+      const result = await generatePlan(d);
+      setPlan(result);
+      setPlace(`${d.city}, ${d.country}`);
+      setKey((k) => k + 1);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "We couldn't generate the meal plan right now. Please try again.";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen text-neutral-100 selection:bg-lime-500/30">
+    <div className="relative min-h-screen text-neutral-100 selection:bg-lime-500/30">
+      <Scene3D />
       <header className="sticky top-0 z-40 border-b border-white/10 bg-black/50 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
           <Link href="/" className="flex items-center gap-2 text-xl font-extrabold transition-transform hover:scale-105"><Leaf style={{ color: ACCENT }} /> ClimaDiet</Link>
@@ -40,6 +52,11 @@ export default function Dashboard() {
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="lg:sticky lg:top-24"
           >
+            {error && (
+              <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-medium text-red-200">
+                {error}
+              </div>
+            )}
             <ClinicalIntakeForm onSubmit={submit} loading={loading} />
           </motion.div>
           
@@ -55,7 +72,7 @@ export default function Dashboard() {
                   className="flex flex-col gap-8"
                 >
                   <MacroScorecard plan={plan} />
-                  <MealPlanView meals={plan.meals} tdee={plan.tdee} subtitle={place} />
+                  <MealPlanView plan={plan} subtitle={place} />
                 </motion.div>
               ) : (
                 <motion.div

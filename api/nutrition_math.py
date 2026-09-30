@@ -1,12 +1,12 @@
 from typing import Tuple
-from schemas import PatientIntake
+from api.schemas import PatientIntake
 
 ACTIVITY_MULTIPLIERS = {
     "sedentary": 1.2,
-    "light": 1.375,
-    "moderate": 1.55,
-    "active": 1.725,
-    "very_active": 1.9
+    "lightly active": 1.375,
+    "moderately active": 1.55,
+    "very active": 1.725,
+    "athlete": 1.9
 }
 
 def calculate_bmr(weight_kg: float, height_cm: float, age: int, gender: str) -> float:

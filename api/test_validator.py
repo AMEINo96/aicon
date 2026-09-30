@@ -1,0 +1,56 @@
+import pytest
+from api.nutrition_math import calculate_bmi, calculate_tdee, adjust_calories_for_goal
+from api.schemas import Meal, NutritionTargets
+from api.meal_validator import validate_meals
+
+def test_bmi():
+    bmi, cat = calculate_bmi(70, 175)
+    assert round(bmi, 1) == 22.9
+    assert cat == "Normal"
+
+def test_tdee_adjustments():
+    tdee = calculate_tdee(1500, "Sedentary")
+    assert tdee == 1800
+    
+    # Weight loss
+    target = adjust_calories_for_goal(2000, "Lose weight")
+    assert target < 2000
+    
+    # Muscle gain
+    target2 = adjust_calories_for_goal(2000, "Gain muscle")
+    assert target2 > 2000
+
+def test_meal_validator():
+    targets = NutritionTargets(
+        bmi=22.9, bmi_category="Normal", bmr=1500, tdee=1800,
+        target_calories=2000, protein_g=150, carbs_g=200, fat_g=66,
+        constraints_applied=[]
+    )
+    
+    # Invalid count
+    meals = [
+        Meal(id="1", day="Day 1", slot="Breakfast", name="Eggs", ingredients=["egg"], image_keyword="egg", emoji="O", calories=500, protein=30, carbs=20, fat=20, why="", benefits=[])
+    ]
+    is_valid, msgs = validate_meals(meals, targets, ["peanuts"])
+    assert not is_valid
+    assert "Expected exactly 21 meals" in msgs[0]
+
+    # Valid plan mock (7 days x 3 meals)
+    full_meals = []
+    for d in range(7):
+        for s in ["Breakfast", "Lunch", "Dinner"]:
+            full_meals.append(Meal(
+                id=f"d{d}-{s}", day=f"Day {d+1}", slot=s, name="Test Meal", ingredients=["chicken", "rice"], image_keyword="test", emoji="X",
+                calories=666, protein=50, carbs=66, fat=22, why="", benefits=[]
+            ))
+            
+    is_valid, msgs = validate_meals(full_meals, targets, [])
+    assert is_valid
+
+    # Allergy violation
+    allergy_meals = full_meals.copy()
+    allergy_meals[0].name = "Test Meal"
+    allergy_meals[0].ingredients = ["peanut", "chicken"]
+    is_valid, msgs = validate_meals(allergy_meals, targets, ["peanut"])
+    assert not is_valid
+    assert any("violates explicit restriction" in m for m in msgs)
