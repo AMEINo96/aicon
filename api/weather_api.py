@@ -26,8 +26,11 @@ def get_7_day_forecast(city: str, country: str, start_date: str = None) -> dict:
         min_temps = daily.get('temperature_2m_min', [])
         
         start_idx = 0
-        if start_date and start_date in times:
-            start_idx = times.index(start_date)
+        if start_date:
+            if start_date in times:
+                start_idx = times.index(start_date)
+            else:
+                raise ValueError(f"Requested start_date '{start_date}' is outside the available 16-day forecast window. Please select a closer date.")
             
         forecast = []
         for i in range(7):
@@ -46,6 +49,8 @@ def get_7_day_forecast(city: str, country: str, start_date: str = None) -> dict:
                 })
             
         return {"location": query, "forecast": forecast}
+    except ValueError:
+        raise
     except Exception as e:
         print("Weather API error:", e)
         return {"location": query, "forecast": []}

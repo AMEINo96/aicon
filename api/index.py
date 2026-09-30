@@ -65,7 +65,11 @@ def generate_meal_plan(patient: PatientIntake):
     )
     
     # 2. Get Weather
-    weather_data = get_7_day_forecast(patient.city, patient.country, patient.start_date)
+    try:
+        weather_data = get_7_day_forecast(patient.city, patient.country, patient.start_date)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+        
     weather_info = WeatherInfo(
         location=weather_data["location"],
         forecast=weather_data["forecast"]
