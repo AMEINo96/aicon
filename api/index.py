@@ -125,7 +125,7 @@ def generate_meal_plan(patient: PatientIntake):
             try:
                 from google.genai import types
                 response = client.models.generate_content(
-                    model=GEMINI_MODEL,
+                    model="gemini-3.5-flash",
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
@@ -145,7 +145,7 @@ def generate_meal_plan(patient: PatientIntake):
                     "https://openrouter.ai/api/v1/chat/completions",
                     headers={"Authorization": f"Bearer {or_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "google/gemini-2.0-flash-exp:free",
+                        "model": "qwen/qwen3.8-27b:free",
                         "messages": [
                             {"role": "system", "content": f"You are a clinical AI. Reply ONLY with a raw JSON array matching this JSON Schema: {json.dumps(schema_dict)}"},
                             {"role": "user", "content": prompt}
@@ -165,7 +165,7 @@ def generate_meal_plan(patient: PatientIntake):
                     "https://api.groq.com/openai/v1/chat/completions",
                     headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "llama-3.1-8b-instant",
+                        "model": "qwen/qwen3.8-27b",
                         "messages": [
                             {"role": "system", "content": f"You are a clinical AI. Reply ONLY with a raw JSON array matching this JSON Schema: {json.dumps(schema_dict)}. No markdown blocks."},
                             {"role": "user", "content": prompt}
