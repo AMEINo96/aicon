@@ -79,7 +79,7 @@ def generate_meal_plan(patient: PatientIntake):
     # 3. Base Prompt
     base_prompt = f"""
     You are an expert clinical nutritionist. 
-    Create a complete 7-DAY meal plan for a patient with the following profile:
+    Create a complete 3-DAY meal plan for a patient with the following profile:
     - Age: {patient.age}, Gender: {patient.gender}, Ethnicity/Culture: {patient.ethnicity}
     - Primary Goal: {patient.goal} ({patient.goal_amount})
     - Conditions: {', '.join(patient.conditions) if patient.conditions else 'None'}
@@ -91,7 +91,7 @@ def generate_meal_plan(patient: PatientIntake):
     {weather_str}
     
     CRITICAL INSTRUCTIONS:
-    1. EXACTLY 3 MEALS PER DAY: You MUST provide exactly 'Breakfast', 'Lunch', and 'Dinner' for every day (21 meals total). Do NOT include snacks!
+    1. EXACTLY 3 MEALS PER DAY: You MUST provide exactly 'Breakfast', 'Lunch', and 'Dinner' for 3 days (9 meals total). Do NOT include snacks!
     2. TARGETS: The math engine calculated:
        - Target Calories: {targets.target_calories} kcal
        - Target Protein: {targets.protein_g}g
@@ -117,6 +117,7 @@ def generate_meal_plan(patient: PatientIntake):
     
     import json
     import requests
+    import time
     
     def call_ai_agent(prompt: str) -> str:
         """Tries multiple free-tier AI providers sequentially to avoid 429 quota limits."""
@@ -136,41 +137,42 @@ def generate_meal_plan(patient: PatientIntake):
             except Exception as e:
                 print("Gemini failed:", e)
 
-        # 2. Fallback: OpenRouter
+        # 2. Fallback: OpenRouter (Gemma 4 31B — strong free model)
         or_key = os.getenv("OPENROUTER_API_KEY")
         if or_key:
             try:
-                print("Falling back to OpenRouter free models...")
+                print("Falling back to OpenRouter (gemma-4-31b)...")
                 res = requests.post(
                     "https://openrouter.ai/api/v1/chat/completions",
                     headers={"Authorization": f"Bearer {or_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "qwen/qwen3.8-27b:free",
+                        "model": "google/gemma-4-31b-it:free",
                         "messages": [
-                            {"role": "system", "content": f"You are a clinical AI. Reply ONLY with a raw JSON array matching this JSON Schema: {json.dumps(schema_dict)}"},
+                            {"role": "system", "content": f"You are a clinical AI. Reply ONLY with a raw JSON array matching this JSON Schema: {json.dumps(schema_dict)}. No markdown, no explanation, just the JSON array."},
                             {"role": "user", "content": prompt}
                         ]
-                    }, timeout=60
+                    }, timeout=90
                 )
                 if res.status_code == 200: return res.json()["choices"][0]["message"]["content"]
                 else: print(f"OpenRouter returned {res.status_code}: {res.text[:200]}")
             except Exception as e: print("OpenRouter failed:", e)
 
-        # 3. Fallback: Groq (Ultra-fast Llama 3 Free Tier)
+        # 3. Fallback: Groq (GPT-OSS 120B)
         groq_key = os.getenv("GROQ_API_KEY")
         if groq_key:
             try:
-                print("Falling back to Groq...")
+                print("Falling back to Groq (gpt-oss-120b)...")
                 res = requests.post(
                     "https://api.groq.com/openai/v1/chat/completions",
                     headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "qwen/qwen3.8-27b",
+                        "model": "openai/gpt-oss-120b",
+                        "max_tokens": 8000,
                         "messages": [
-                            {"role": "system", "content": f"You are a clinical AI. Reply ONLY with a raw JSON array matching this JSON Schema: {json.dumps(schema_dict)}. No markdown blocks."},
+                            {"role": "system", "content": f"You are a clinical AI. Reply ONLY with a raw JSON array matching this JSON Schema: {json.dumps(schema_dict)}. No markdown, no explanation, just the JSON array."},
                             {"role": "user", "content": prompt}
                         ]
-                    }, timeout=30
+                    }, timeout=60
                 )
                 if res.status_code == 200: return res.json()["choices"][0]["message"]["content"]
                 else: print(f"Groq returned {res.status_code}: {res.text[:200]}")
@@ -194,7 +196,7 @@ def generate_meal_plan(patient: PatientIntake):
             is_valid, validation_msgs = validate_meals(meals, targets, restrictions_to_check)
             
             if is_valid:
-                validation_msgs = ["Nutrition targets verified", "Dietary restrictions checked", "7-day plan generated", "Automated validation passed"]
+                validation_msgs = ["Nutrition targets verified", "Dietary restrictions checked", "3-day plan generated", "Automated validation passed"]
                 break
                 
             # If invalid, append feedback and retry
