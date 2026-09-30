@@ -119,9 +119,12 @@ def generate_meal_plan(patient: PatientIntake):
     import requests
     import time
     
+    # Compact schema description for fallback providers (saves ~3000 tokens vs full JSON schema)
+    compact_schema = """Return a JSON array of 9 meal objects. Each meal: {"id":"day1-breakfast","day":"Day 1","meal_type":"Breakfast","name":"Dish Name","calories":500,"protein":30,"carbs":60,"fat":15,"ingredients":["item1","item2"],"image_keyword":"keyword","climate_note":"why this suits the weather"}. Days: "Day 1","Day 2","Day 3". Meal types: "Breakfast","Lunch","Dinner". 9 meals total."""
+    
     def call_ai_agent(prompt: str) -> str:
         """Tries multiple free-tier AI providers sequentially to avoid 429 quota limits."""
-        # 1. Primary: Google Gemini (stable generate_content API)
+        # 1. Primary: Google Gemini (stable generate_content API — uses full schema)
         if GEMINI_API_KEY:
             try:
                 from google.genai import types
@@ -148,7 +151,7 @@ def generate_meal_plan(patient: PatientIntake):
                     json={
                         "model": "google/gemma-4-31b-it:free",
                         "messages": [
-                            {"role": "system", "content": f"You are a clinical AI. Reply ONLY with a raw JSON array matching this JSON Schema: {json.dumps(schema_dict)}. No markdown, no explanation, just the JSON array."},
+                            {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
                             {"role": "user", "content": prompt}
                         ]
                     }, timeout=90
@@ -157,7 +160,7 @@ def generate_meal_plan(patient: PatientIntake):
                 else: print(f"OpenRouter returned {res.status_code}: {res.text[:200]}")
             except Exception as e: print("OpenRouter failed:", e)
 
-        # 3. Fallback: Groq (GPT-OSS 120B)
+        # 3. Fallback: Groq (GPT-OSS 120B — 8000 TPM limit, keep it tight)
         groq_key = os.getenv("GROQ_API_KEY")
         if groq_key:
             try:
@@ -167,9 +170,9 @@ def generate_meal_plan(patient: PatientIntake):
                     headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
                     json={
                         "model": "openai/gpt-oss-120b",
-                        "max_tokens": 8000,
+                        "max_tokens": 4000,
                         "messages": [
-                            {"role": "system", "content": f"You are a clinical AI. Reply ONLY with a raw JSON array matching this JSON Schema: {json.dumps(schema_dict)}. No markdown, no explanation, just the JSON array."},
+                            {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
                             {"role": "user", "content": prompt}
                         ]
                     }, timeout=60
