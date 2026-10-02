@@ -139,7 +139,7 @@ def generate_meal_plan(patient: PatientIntake):
             retry_options=types.HttpRetryOptions(attempts=1),
         ),
     )
-    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 
     regional_foods = get_regional_food_guidance(patient.country)
     
