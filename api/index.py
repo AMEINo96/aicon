@@ -158,6 +158,7 @@ def generate_meal_plan(patient: PatientIntake):
     - Allergies: {', '.join(patient.allergies) if patient.allergies else 'None'}
     - VARIETY RULE: Do not repeat the exact same daily menu. You may reuse staple items (like eggs, protein shakes, or rice), but ensure the main dishes offer variety compared to previous days.
     - CULINARY REALISM & SIMPLICITY: Use standard, globally or locally recognized real-world dish names that already exist on the internet (e.g., 'Daal Chawal', 'Chicken Karahi', 'Palak Paneer', 'Grilled Chicken Salad'). Do NOT invent your own dishes or combine random items like 'fish with apple and daal'. Keep meals EXTREMELY SIMPLE, maximum 2-3 components per meal, and culturally accurate. Never mix fruits into hot savory meals.
+    - NAMING RULE: The 'name' field MUST be 1-4 words maximum of just the CORE dish (e.g. 'Chicken Karahi' or 'Daal Chawal'). Do NOT include the side dishes or rice in the 'name' field. Never add words like 'Grilled' to traditional curries.
     - Dietary Restrictions: {', '.join(patient.dietary_restrictions) if patient.dietary_restrictions else 'None'}
     - PREVIOUSLY EATEN MEALS (For context): {past_meals_str}
     
@@ -305,7 +306,7 @@ def generate_meal_plan(patient: PatientIntake):
         if any(term in normalized_name for term in ("moong", "mung", "mong")) and any(term in normalized_name for term in ("dal", "lentil")):
             visual_detail = " Yellow split mung beans in a golden, lightly textured curry with visible lentils and a small cumin tempering, served in a simple bowl; not a green soup, not a blended puree."
         image_prompt = (
-            f"Authentic home-cooked {m.name}. Show exactly the named dish as it is commonly served in {patient.country}, "
+            f"Authentic home-cooked {m.image_keyword}. Show exactly the named dish as it is commonly served in {patient.country}, "
             f"recognizable ingredients and traditional preparation.{visual_detail} "
             "Photorealistic natural food photography, simple real tableware, soft daylight, appetizing but realistic, "
             "single dish centered, no text, no collage, no unrelated garnish."
