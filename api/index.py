@@ -157,7 +157,7 @@ def generate_meal_plan(patient: PatientIntake):
     - Conditions: {', '.join(patient.conditions) if patient.conditions else 'None'}
     - Allergies: {', '.join(patient.allergies) if patient.allergies else 'None'}
     - VARIETY RULE: Do not repeat the exact same daily menu. You may reuse staple items (like eggs, protein shakes, or rice), but ensure the main dishes offer variety compared to previous days.
-    - CULINARY REALISM & SIMPLICITY: Keep meals EXTREMELY SIMPLE and culturally accurate. Do NOT invent weird combinations (like 'fish with apple and daal' or 'tikka with bhindi carrot sabzi'). Use basic, real-life meals like '100g Boiled Rice with Chicken Tikka' or '2 Boiled Eggs with Multigrain Bread'. STRICT RULE: Maximum 2-3 components per meal. Never mix fruits into savory hot meals. Keep it basic, appetizing, and realistic.
+    - CULINARY REALISM & SIMPLICITY: Use standard, globally or locally recognized real-world dish names that already exist on the internet (e.g., 'Daal Chawal', 'Chicken Karahi', 'Palak Paneer', 'Grilled Chicken Salad'). Do NOT invent your own dishes or combine random items like 'fish with apple and daal'. Keep meals EXTREMELY SIMPLE, maximum 2-3 components per meal, and culturally accurate. Never mix fruits into hot savory meals.
     - Dietary Restrictions: {', '.join(patient.dietary_restrictions) if patient.dietary_restrictions else 'None'}
     - PREVIOUSLY EATEN MEALS (For context): {past_meals_str}
     
