@@ -27,8 +27,7 @@ export type PatientIntake = {
   past_meals: string[];
   goal: string; goal_amount: string; dietary_restrictions: string[];
   start_date: string; end_date: string; city: string;
-  plan_day_number: number;
-  past_meals: string[]; country: string;
+  country: string;
 };
 export type IntakeData = PatientIntake;
 
@@ -120,3 +119,4 @@ export async function generatePlan(data: IntakeData): Promise<PlanResponse> {
     clearTimeout(timeout);
   }
 }
+
