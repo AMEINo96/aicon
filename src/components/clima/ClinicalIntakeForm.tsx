@@ -39,7 +39,7 @@ export default function ClinicalIntakeForm({ onSubmit, loading, plannerMode, onI
       try {
         const parsed = JSON.parse(saved);
         if (parsed) setD({ ...parsed, start_date: today });
-      } catch (e) {}
+      } catch (error) { console.warn("Failed to load profile", error); }
     }
   }, []);
 
@@ -217,7 +217,7 @@ export default function ClinicalIntakeForm({ onSubmit, loading, plannerMode, onI
         Day {d.plan_day_number} of your journey
       </div>
       <button disabled={loading} className="w-full bg-forest text-white py-3.5 rounded-md font-semibold flex items-center justify-center gap-2 transition-all hover:bg-opacity-90 disabled:opacity-70">
-        {loading ? <><Loader2 className="animate-spin" size={18} /> Generating your today's meal plan...</> : "Generate your today's meal plan"}
+        {loading ? <><Loader2 className="animate-spin" size={18} /> Generating your today&apos;s meal plan...</> : "Generate your today&apos;s meal plan"}
       </button>
     </form>
   );

@@ -21,7 +21,7 @@ export default function Dashboard() {
       const result = await generatePlan(d);
       setPlan(result);
       if (result.meal_plan?.days?.[0]) {
-        const generatedMeals = result.meal_plan.days[0].meals.map((m: any) => m.name);
+        const generatedMeals = result.meal_plan.days[0].meals.map((m: { name: string }) => m.name);
         const nextDayProfile = { ...d, plan_day_number: (d.plan_day_number || 1) + 1, past_meals: [...(d.past_meals || []), ...generatedMeals] };
         localStorage.setItem("patientProfile", JSON.stringify(nextDayProfile));
       }
