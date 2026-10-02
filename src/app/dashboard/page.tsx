@@ -147,7 +147,7 @@ export default function Dashboard() {
                     exit={{ opacity: 0 }}
                     className="flex h-[600px] flex-col items-center justify-center rounded-2xl border border-dashed border-heat/30 bg-heat/5 text-center p-8"
                   >
-                    <div className="text-6xl mb-4">??</div>
+                    <div className="text-6xl mb-4">😿</div>
                     <h3 className="text-lg font-bold text-heat mb-2">Sorry, could not generate plan</h3>
                     <p className="text-sm text-heat/70 max-w-sm">
                       {error}

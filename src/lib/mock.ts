@@ -91,7 +91,7 @@ export type PlanResponse = {
 export async function generatePlan(data: IntakeData): Promise<PlanResponse> {
   const url = process.env.NEXT_PUBLIC_BACKEND_URL || "/api";
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 90_000);
+  const timeout = setTimeout(() => controller.abort(), 150_000);
 
   try {
     const r = await fetch(`${url}/generate-plan`, {
@@ -109,7 +109,7 @@ export async function generatePlan(data: IntakeData): Promise<PlanResponse> {
     return responseData as PlanResponse;
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error("Plan generation timed out after 90 seconds. Check that the API is running and try again.");
+      throw new Error("Plan generation timed out after 150 seconds. Check that the API is running and try again.");
     }
     if (error instanceof TypeError) {
       throw new Error("Could not reach the plan generation API. Check that the backend is running, then try again.");
