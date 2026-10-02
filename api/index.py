@@ -207,13 +207,13 @@ def generate_meal_plan(patient: PatientIntake):
         groq_key = os.getenv("GROQ_API_KEY")
         if groq_key:
             try:
-                print("Trying Groq (qwen3.8-27b)...")
+                print("Trying Groq (gpt-oss-120b)...")
                 res = requests.post(
                     "https://api.groq.com/openai/v1/chat/completions",
                     headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "qwen/qwen3.8-27b",
-                        "max_tokens": 1500,
+                        "model": "openai/gpt-oss-120b",
+                        "max_tokens": 3500,
                         "messages": [
                             {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
                             {"role": "user", "content": prompt}
