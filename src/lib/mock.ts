@@ -23,8 +23,12 @@ export type PatientIntake = {
   planner_mode: "ai" | "catalog";
   age: number; weight: number; height: number; gender: string; activity: string;
   conditions: string[]; allergies: string[]; ethnicity: string;
+  plan_day_number: number;
+  past_meals: string[];
   goal: string; goal_amount: string; dietary_restrictions: string[];
-  start_date: string; end_date: string; city: string; country: string;
+  start_date: string; end_date: string; city: string;
+  plan_day_number: number;
+  past_meals: string[]; country: string;
 };
 export type IntakeData = PatientIntake;
 

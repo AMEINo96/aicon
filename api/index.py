@@ -146,14 +146,18 @@ def generate_meal_plan(patient: PatientIntake):
     weather_str = "\\n".join([f"Day {i+1} ({w['time']}): High {w['temperature_max']}C" for i, w in enumerate(weather_info.forecast)])
 
     # 3. Base Prompt
+    past_meals_str = ', '.join(patient.past_meals) if patient.past_meals else 'None'
     base_prompt = f"""
     You are an expert clinical nutritionist. 
-    Create a complete 1-DAY meal plan for a patient with the following profile:
+    Create a complete 1-DAY meal plan for a patient with the following profile.
+    This is DAY {patient.plan_day_number} of their meal plan journey.
+    
     - Age: {patient.age}, Gender: {patient.gender}, Ethnicity/Culture: {patient.ethnicity}
     - Primary Goal: {patient.goal} ({patient.goal_amount})
     - Conditions: {', '.join(patient.conditions) if patient.conditions else 'None'}
     - Allergies: {', '.join(patient.allergies) if patient.allergies else 'None'}
     - Dietary Restrictions: {', '.join(patient.dietary_restrictions) if patient.dietary_restrictions else 'None'}
+    - PREVIOUSLY EATEN MEALS (DO NOT SUGGEST THESE): {past_meals_str}
     
     Location: {weather_info.location}
     Weather Forecast:

@@ -26,7 +26,7 @@ export default function ClinicalIntakeForm({ onSubmit, loading, plannerMode, onI
     age: 32, weight: 85, height: 175, gender: "male", activity: "sedentary",
     goal: "Lose weight", goal_amount: "5kg", ethnicity: "South Asian",
     conditions: [], allergies: [], dietary_restrictions: [],
-    city: "Lahore", country: "Pakistan", start_date: today, end_date: ""
+    plan_day_number: 1, past_meals: [], city: "Lahore", country: "Pakistan", start_date: today, end_date: ""
   });
 
   const [customCond, setCustomCond] = useState("");
@@ -213,6 +213,9 @@ export default function ClinicalIntakeForm({ onSubmit, loading, plannerMode, onI
       </section>
 
       {/* SUBMIT */}
+      <div className="text-center text-sm font-medium text-forest">
+        Day {d.plan_day_number} of your journey
+      </div>
       <button disabled={loading} className="w-full bg-forest text-white py-3.5 rounded-md font-semibold flex items-center justify-center gap-2 transition-all hover:bg-opacity-90 disabled:opacity-70">
         {loading ? <><Loader2 className="animate-spin" size={18} /> Generating your today's meal plan...</> : "Generate your today's meal plan"}
       </button>

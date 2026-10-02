@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any, Literal
 
 class PatientIntake(BaseModel):
+    plan_day_number: int = Field(default=1)
+    past_meals: List[str] = Field(default_factory=list)
     planner_mode: Literal["ai", "catalog"] = Field(default="ai", description="Select the existing AI providers or the local catalog planner")
     age: int = Field(..., description="Age in years")
     weight: float = Field(..., description="Weight in kg")

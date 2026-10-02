@@ -20,6 +20,11 @@ export default function Dashboard() {
     try {
       const result = await generatePlan(d);
       setPlan(result);
+      if (result.meal_plan?.days?.[0]) {
+        const generatedMeals = result.meal_plan.days[0].meals.map((m: any) => m.name);
+        const nextDayProfile = { ...d, plan_day_number: (d.plan_day_number || 1) + 1, past_meals: [...(d.past_meals || []), ...generatedMeals] };
+        localStorage.setItem("patientProfile", JSON.stringify(nextDayProfile));
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Generation failed.";
       setError(msg);
