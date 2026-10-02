@@ -222,12 +222,12 @@ def generate_meal_plan(patient: PatientIntake):
         or_key = os.getenv("OPENROUTER_API_KEY")
         if or_key:
             try:
-                print("Falling back to OpenRouter (gemma-4-31b)...")
+                print("Falling back to OpenRouter (nemotron-3.5)...")
                 res = requests.post(
                     "https://openrouter.ai/api/v1/chat/completions",
                     headers={"Authorization": f"Bearer {or_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "google/gemma-4-31b-it:free",
+                        "model": "nvidia/nemotron-3.5-lightning:free",
                         "messages": [
                             {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
                             {"role": "user", "content": prompt}
@@ -242,12 +242,12 @@ def generate_meal_plan(patient: PatientIntake):
         groq_key = os.getenv("GROQ_API_KEY")
         if groq_key:
             try:
-                print("Falling back to Groq (gpt-oss-120b)...")
+                print("Falling back to Groq (gpt-oss-20b)...")
                 res = requests.post(
                     "https://api.groq.com/openai/v1/chat/completions",
                     headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "openai/gpt-oss-120b",
+                        "model": "openai/gpt-oss-20b",
                         "max_tokens": 4000,
                         "messages": [
                             {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
@@ -269,6 +269,7 @@ def generate_meal_plan(patient: PatientIntake):
             output_text = call_ai_agent(current_prompt)
             # Remove potential markdown formatting from fallback models
             output_text = output_text.strip()
+            if not output_text: raise Exception("Empty response from AI")
             if output_text.startswith("```json"): output_text = output_text[7:]
             if output_text.startswith("```"): output_text = output_text[3:]
             if output_text.endswith("```"): output_text = output_text[:-3]
@@ -295,6 +296,7 @@ def generate_meal_plan(patient: PatientIntake):
             raise
         except Exception as e:
             print(f"Gen/Parse Error (Attempt {attempt+1}):", str(e).encode('ascii', 'replace').decode())
+            time.sleep(2)
             if attempt == MAX_ATTEMPTS - 1:
                 raise HTTPException(status_code=502, detail=str(e) if "providers exhausted" in str(e) else "External AI service failed after multiple attempts.")
                 
