@@ -64,16 +64,16 @@ def validate_meals(
         target_fat = getattr(targets, 'fat_g', 0)
         
         if abs(day_cals - target_cals) / target_cals > CALORIE_TOLERANCE:
-            errors.append(f"{day_label} calories ({day_cals} kcal) is outside 10% tolerance of target ({target_cals} kcal).")
+            errors.append(f"{day_label} calories ({day_cals} kcal) is outside 20% tolerance of target ({target_cals} kcal).")
             
         if target_protein > 0 and abs(day_protein - target_protein) / target_protein > MACRO_TOLERANCE:
-            errors.append(f"{day_label} protein ({day_protein}g) is outside 20% tolerance of target ({target_protein}g).")
+            errors.append(f"{day_label} protein ({day_protein}g) is outside 35% tolerance of target ({target_protein}g).")
             
         if target_carbs > 0 and abs(day_carbs - target_carbs) / target_carbs > MACRO_TOLERANCE:
-            errors.append(f"{day_label} carbs ({day_carbs}g) is outside 20% tolerance of target ({target_carbs}g).")
+            errors.append(f"{day_label} carbs ({day_carbs}g) is outside 35% tolerance of target ({target_carbs}g).")
             
         if target_fat > 0 and abs(day_fat - target_fat) / target_fat > MACRO_TOLERANCE:
-            errors.append(f"{day_label} fat ({day_fat}g) is outside 20% tolerance of target ({target_fat}g).")
+            errors.append(f"{day_label} fat ({day_fat}g) is outside 35% tolerance of target ({target_fat}g).")
             
         # Check macro arithmetic for each meal
         for m in day_meals:
