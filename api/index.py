@@ -157,6 +157,7 @@ def generate_meal_plan(patient: PatientIntake):
     - Conditions: {', '.join(patient.conditions) if patient.conditions else 'None'}
     - Allergies: {', '.join(patient.allergies) if patient.allergies else 'None'}
     - VARIETY RULE: Do not repeat the exact same daily menu. You may reuse staple items (like eggs, protein shakes, or rice), but ensure the main dishes offer variety compared to previous days.
+    - CULINARY REALISM: Do NOT cram random foods together (like eggs, paneer, and chickpeas in one meal) just to hit high protein targets. Meals must be normal, culturally coherent, appetizing dishes. If you need more protein, increase the portion of the MAIN protein source (e.g., 200g chicken or 4 eggs) rather than adding bizarre side dishes.
     - Dietary Restrictions: {', '.join(patient.dietary_restrictions) if patient.dietary_restrictions else 'None'}
     - PREVIOUSLY EATEN MEALS (For context): {past_meals_str}
     
