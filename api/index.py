@@ -139,7 +139,7 @@ def generate_meal_plan(patient: PatientIntake):
             retry_options=types.HttpRetryOptions(attempts=1),
         ),
     )
-    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
     regional_foods = get_regional_food_guidance(patient.country)
     
@@ -203,20 +203,26 @@ def generate_meal_plan(patient: PatientIntake):
     
     def call_ai_agent(prompt: str) -> str:
         """Tries multiple free-tier AI providers sequentially to avoid 429 quota limits."""
-        # 1. Primary: Google Gemini (stable generate_content API — uses full schema)
-        if GEMINI_API_KEY:
+        # 1. Primary: Groq (GPT-OSS 120B — 8000 TPM limit, keep it tight)
+        groq_key = os.getenv("GROQ_API_KEY")
+        if groq_key:
             try:
-                response = client.models.generate_content(
-                    model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        response_schema=schema_dict,
-                    )
+                print("Trying Groq (gpt-oss-120b)...")
+                res = requests.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
+                    json={
+                        "model": "openai/gpt-oss-120b",
+                        "max_tokens": 4000,
+                        "messages": [
+                            {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
+                            {"role": "user", "content": prompt}
+                        ]
+                    }, timeout=15
                 )
-                return response.text
-            except Exception as e:
-                print("Gemini failed:", e)
+                if res.status_code == 200: return res.json()["choices"][0]["message"]["content"]
+                else: print(f"Groq returned {res.status_code}: {res.text[:200]}")
+            except Exception as e: print("Groq failed:", e)
 
         # 2. Fallback: OpenRouter (Gemma 4 31B — strong free model)
         or_key = os.getenv("OPENROUTER_API_KEY")
@@ -238,26 +244,20 @@ def generate_meal_plan(patient: PatientIntake):
                 else: print(f"OpenRouter returned {res.status_code}: {res.text[:200]}")
             except Exception as e: print("OpenRouter failed:", e)
 
-        # 3. Fallback: Groq (GPT-OSS 120B — 8000 TPM limit, keep it tight)
-        groq_key = os.getenv("GROQ_API_KEY")
-        if groq_key:
+        # 3. Fallback: Google Gemini (stable generate_content API — uses full schema)
+        if GEMINI_API_KEY:
             try:
-                print("Falling back to Groq (gpt-oss-20b)...")
-                res = requests.post(
-                    "https://api.groq.com/openai/v1/chat/completions",
-                    headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
-                    json={
-                        "model": "openai/gpt-oss-20b",
-                        "max_tokens": 4000,
-                        "messages": [
-                            {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
-                            {"role": "user", "content": prompt}
-                        ]
-                    }, timeout=15
+                response = client.models.generate_content(
+                    model=os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema=schema_dict,
+                    )
                 )
-                if res.status_code == 200: return res.json()["choices"][0]["message"]["content"]
-                else: print(f"Groq returned {res.status_code}: {res.text[:200]}")
-            except Exception as e: print("Groq failed:", e)
+                return response.text
+            except Exception as e:
+                print("Gemini fallback failed:", e)
 
         raise HTTPException(
             status_code=503,
