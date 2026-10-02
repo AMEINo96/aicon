@@ -135,7 +135,7 @@ def generate_meal_plan(patient: PatientIntake):
     client = genai.Client(
         api_key=GEMINI_API_KEY,
         http_options=types.HttpOptions(
-            timeout=15000,
+            timeout=10,
             retry_options=types.HttpRetryOptions(attempts=1),
         ),
     )
