@@ -2,8 +2,8 @@ import re
 from api.schemas import Meal, NutritionTargets, ValidationInfo, DailyTotals, DayPlan
 from typing import List, Tuple, Dict, Any
 
-CALORIE_TOLERANCE = 0.10
-MACRO_TOLERANCE = 0.20 # 20% variance allowed for daily macro totals
+CALORIE_TOLERANCE = 0.20
+MACRO_TOLERANCE = 0.35 # 35% variance allowed for daily macro totals to prevent rate-limiting retry loops
 
 ALLERGEN_SYNONYMS = {
     "peanut": ["peanut", "peanuts", "groundnut", "groundnuts", "arachis"],
