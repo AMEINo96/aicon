@@ -212,15 +212,18 @@ def generate_meal_plan(patient: PatientIntake):
                     "https://api.groq.com/openai/v1/chat/completions",
                     headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "openai/gpt-oss-120b",
-                        "max_tokens": 1000,
+                        "model": "openai/gpt-oss-20b",
+                        "max_tokens": 3000,
                         "messages": [
                             {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
                             {"role": "user", "content": prompt}
                         ]
                     }, timeout=15
                 )
-                if res.status_code == 200: return res.json()["choices"][0]["message"]["content"]
+                if res.status_code == 200:
+                    text = res.json()["choices"][0]["message"].get("content", "")
+                    if text: return text
+                    else: raise ValueError("Groq returned empty content (hit reasoning limit)")
                 else: print(f"Groq returned {res.status_code}: {res.text[:200]}")
             except Exception as e: print("Groq failed:", e)
 
@@ -233,14 +236,17 @@ def generate_meal_plan(patient: PatientIntake):
                     "https://openrouter.ai/api/v1/chat/completions",
                     headers={"Authorization": f"Bearer {or_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "openrouter/free",
+                        "model": "liquid/lfm-2.5-2.6b:free",
                         "messages": [
                             {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
                             {"role": "user", "content": prompt}
                         ]
                     }, timeout=15
                 )
-                if res.status_code == 200: return res.json()["choices"][0]["message"]["content"]
+                if res.status_code == 200:
+                    text = res.json()["choices"][0]["message"].get("content", "")
+                    if text: return text
+                    else: raise ValueError("Groq returned empty content (hit reasoning limit)")
                 else: print(f"OpenRouter returned {res.status_code}: {res.text[:200]}")
             except Exception as e: print("OpenRouter failed:", e)
 

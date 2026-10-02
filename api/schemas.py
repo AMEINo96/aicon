@@ -32,10 +32,10 @@ class Meal(BaseModel):
     image_keyword: str = Field(..., description="1-2 word search term for the image (e.g. 'biryani', 'salad')")
     image: Optional[str] = Field(None, description="Image URL populated by backend")
     emoji: Optional[str] = Field(None, description="A single emoji representing the meal (deprecated)")
-    calories: int = Field(..., description="Estimated calories")
-    protein: int = Field(..., description="Protein in grams")
-    carbs: int = Field(..., description="Carbohydrates in grams")
-    fat: int = Field(..., description="Fat in grams")
+    calories: float = Field(..., description="Estimated calories")
+    protein: float = Field(..., description="Protein in grams")
+    carbs: float = Field(..., description="Carbohydrates in grams")
+    fat: float = Field(..., description="Fat in grams")
     why: str = Field(..., description="Why this fits the local real-time weather and their conditions")
     benefits: List[str] = Field(..., description="3-4 short points on why this meal helps them")
 
@@ -46,10 +46,10 @@ class NutritionTargets(BaseModel):
     bmi_category: str
     bmr: int
     tdee: int
-    target_calories: int
-    protein_g: int
-    carbs_g: int
-    fat_g: int
+    target_calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
     constraints_applied: List[str]
 
 class WeatherInfo(BaseModel):
@@ -57,10 +57,10 @@ class WeatherInfo(BaseModel):
     forecast: List[Dict[str, Any]]
 
 class DailyTotals(BaseModel):
-    calories: int
-    protein_g: int
-    carbs_g: int
-    fat_g: int
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
 
 class ValidationInfo(BaseModel):
     valid: bool
