@@ -159,6 +159,7 @@ def generate_meal_plan(patient: PatientIntake):
     - VARIETY RULE: Do not repeat the exact same daily menu. You may reuse staple items (like eggs, protein shakes, or rice), but ensure the main dishes offer variety compared to previous days.
     - CULINARY REALISM & SIMPLICITY: Use standard, globally or locally recognized real-world dish names that already exist on the internet (e.g., 'Daal Chawal', 'Chicken Karahi', 'Palak Paneer', 'Grilled Chicken Salad'). Do NOT invent your own dishes or combine random items like 'fish with apple and daal'. Keep meals EXTREMELY SIMPLE, maximum 2-3 components per meal, and culturally accurate. Never mix fruits into hot savory meals.
     - NAMING RULE: The 'name' field MUST be 1-4 words maximum of just the CORE dish (e.g. 'Chicken Karahi' or 'Daal Chawal'). Do NOT include the side dishes or rice in the 'name' field. Never add words like 'Grilled' to traditional curries.
+    - PORTION SIZES & MACRO MATH: You MUST include exact portion sizes (e.g. '200g chicken breast', '150g basmati rice', '2 whole boiled eggs') in the 'ingredients' array. The macros you generate MUST perfectly match these realistic portion sizes. E.g. A standard Aloo Paratha does not have 34g of protein unless you specify '2 Aloo Parathas' and '3 Boiled Eggs' in the ingredients.
     - Dietary Restrictions: {', '.join(patient.dietary_restrictions) if patient.dietary_restrictions else 'None'}
     - PREVIOUSLY EATEN MEALS (For context): {past_meals_str}
     
@@ -197,7 +198,7 @@ def generate_meal_plan(patient: PatientIntake):
     import time
     
     # Compact schema description for fallback providers (saves ~3000 tokens vs full JSON schema)
-    compact_schema = """Return only a JSON array of exactly 3 meal objects. Each object must have these fields: {"id":"day1-breakfast","day":"Day 1","slot":"Breakfast","name":"Dish Name","ingredients":["item1","item2"],"image_keyword":"keyword","emoji":"🥣","calories":500,"protein":30,"carbs":60,"fat":15,"why":"Why it fits the weather and profile","benefits":["Benefit one","Benefit two"]}. Use days Day 1 and slots Breakfast, Lunch, Dinner exactly once. No markdown."""
+    compact_schema = """Return only a JSON array of exactly 3 meal objects. Each object must have these fields: {"id":"day1-breakfast","day":"Day 1","slot":"Breakfast","name":"Dish Name","ingredients":["200g chicken breast","150g basmati rice"],"image_keyword":"keyword","emoji":"🥣","calories":500,"protein":30,"carbs":60,"fat":15,"why":"Why it fits the weather and profile","benefits":["Benefit one","Benefit two"]}. Use days Day 1 and slots Breakfast, Lunch, Dinner exactly once. No markdown."""
     
     def call_ai_agent(prompt: str) -> str:
         """Tries multiple free-tier AI providers sequentially to avoid 429 quota limits."""
