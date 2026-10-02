@@ -12,11 +12,16 @@ export default function Dashboard() {
   const [plan, setPlan] = useState<PlanResponse | null>(null);
   const [plannerMode, setPlannerMode] = useState<IntakeData["planner_mode"]>("ai");
   const [loading, setLoading] = useState(false);
+  const [isTakingLong, setIsTakingLong] = useState(false);
+  const [currentDay, setCurrentDay] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
 
   const submit = async (d: IntakeData) => {
     setLoading(true);
+    setIsTakingLong(false);
     setError(null);
+    setCurrentDay(d.plan_day_number || 1);
+    const timeout = setTimeout(() => setIsTakingLong(true), 8000);
     try {
       const result = await generatePlan(d);
       setPlan(result);
@@ -28,7 +33,9 @@ export default function Dashboard() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Generation failed.";
       setError(msg);
+      setPlan(null); // Clear plan on error to show the error state
     } finally {
+      clearTimeout(timeout);
       setLoading(false);
     }
   };
@@ -118,7 +125,35 @@ export default function Dashboard() {
             {/* RESULTS COLUMN */}
             <div className="flex flex-col gap-10 min-w-0">
               <AnimatePresence mode="wait">
-                {plan ? (
+                {loading ? (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex h-[600px] flex-col items-center justify-center rounded-2xl border border-border/50 bg-white/40 backdrop-blur-md shadow-sm text-center p-8 animate-pulse"
+                  >
+                    <div className="h-12 w-12 rounded-full border-4 border-forest border-t-transparent animate-spin mb-6"></div>
+                    <h3 className="text-xl font-bold text-forest mb-2">Generating your day {currentDay} plan</h3>
+                    <p className="text-sm text-forest/70 max-w-sm h-5 transition-all">
+                      {isTakingLong ? "It is taking longer than usual, please wait..." : ""}
+                    </p>
+                  </motion.div>
+                ) : error ? (
+                  <motion.div
+                    key="error"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex h-[600px] flex-col items-center justify-center rounded-2xl border border-dashed border-heat/30 bg-heat/5 text-center p-8"
+                  >
+                    <div className="text-6xl mb-4">??</div>
+                    <h3 className="text-lg font-bold text-heat mb-2">Sorry, could not generate plan</h3>
+                    <p className="text-sm text-heat/70 max-w-sm">
+                      {error}
+                    </p>
+                  </motion.div>
+                ) : plan ? (
                   <motion.div
                     key="results"
                     initial={{ opacity: 0, y: 10 }}
