@@ -1,4 +1,4 @@
-import os
+﻿import os
 import urllib.parse
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -160,7 +160,7 @@ def generate_meal_plan(patient: PatientIntake):
     - CULINARY REALISM & SIMPLICITY: Use standard, globally or locally recognized real-world dish names that already exist on the internet (e.g., 'Daal Chawal', 'Chicken Karahi', 'Palak Paneer', 'Grilled Chicken Salad'). Do NOT invent your own dishes or combine random items like 'fish with apple and daal'. Keep meals EXTREMELY SIMPLE, maximum 2-3 components per meal, and culturally accurate. Never mix fruits into hot savory meals.
     - NAMING RULE: The 'name' field MUST be 1-4 words maximum of just the CORE dish (e.g. 'Chicken Karahi' or 'Daal Chawal'). Do NOT include the side dishes or rice in the 'name' field. Never add words like 'Grilled' to traditional curries.
     - PORTION SIZES & MACRO MATH: You MUST include exact portion sizes (e.g. '200g chicken breast', '150g basmati rice', '2 whole boiled eggs') in the 'ingredients' array. The macros you generate MUST perfectly match these realistic portion sizes.
-    - MACRO DISTRIBUTION: If the daily protein target is very high, DO NOT force the user to eat absurd portions (like 400g of fish in one sitting). Instead, distribute the macros by adding a 4th meal (slot: 'Snack') such as a Protein Shake, protein bar, or Greek Yogurt.
+    - MACRO DISTRIBUTION: You MUST generate 4 meals (Breakfast, Lunch, Dinner, Snack) to prevent absurdly large portion sizes. DO NOT force the user to eat absurd portions (like 400g of fish in one sitting). Instead, distribute the macros by adding a 4th meal (slot: 'Snack') such as a Protein Shake, protein bar, or Greek Yogurt.
     - Dietary Restrictions: {', '.join(patient.dietary_restrictions) if patient.dietary_restrictions else 'None'}
     - PREVIOUSLY EATEN MEALS (For context): {past_meals_str}
     
@@ -199,11 +199,11 @@ def generate_meal_plan(patient: PatientIntake):
     import time
     
     # Compact schema description for fallback providers (saves ~3000 tokens vs full JSON schema)
-    compact_schema = """Return only a JSON array of 3 or 4 meal objects. Each object must have these fields: {"id":"day1-breakfast","day":"Day 1","slot":"Breakfast","name":"Dish Name","ingredients":["200g chicken breast","150g basmati rice"],"image_keyword":"keyword","emoji":"🥣","calories":500,"protein":30,"carbs":60,"fat":15,"why":"Why it fits the weather and profile","benefits":["Benefit one","Benefit two"]}. Use days Day 1 and slots Breakfast, Lunch, Dinner exactly once, and optionally one Snack if macro targets are high. No markdown."""
+    compact_schema = """Return only a JSON array of 3 or 4 meal objects. Each object must have these fields: {"id":"day1-breakfast","day":"Day 1","slot":"Breakfast","name":"Dish Name","ingredients":["200g chicken breast","150g basmati rice"],"image_keyword":"keyword","emoji":"🥣","calories":500,"protein":30,"carbs":60,"fat":15,"why":"Why it fits the weather and profile","benefits":["Benefit one","Benefit two"]}. Use days Day 1 and slots Breakfast, Lunch, Dinner exactly once, and YOU MUST include a 4th meal (slot: "Snack") if the total daily protein target is over 120g or calories over 2000 to keep portions realistic. No markdown."""
     
     def call_ai_agent(prompt: str) -> str:
         """Tries multiple free-tier AI providers sequentially to avoid 429 quota limits."""
-        # 1. Primary: Groq (GPT-OSS 120B — 8000 TPM limit, keep it tight)
+        # 1. Primary: Groq (GPT-OSS 120B â€” 8000 TPM limit, keep it tight)
         groq_key = os.getenv("GROQ_API_KEY")
         if groq_key:
             try:
@@ -224,7 +224,7 @@ def generate_meal_plan(patient: PatientIntake):
                 else: print(f"Groq returned {res.status_code}: {res.text[:200]}")
             except Exception as e: print("Groq failed:", e)
 
-        # 2. Fallback: OpenRouter (Gemma 4 31B — strong free model)
+        # 2. Fallback: OpenRouter (Gemma 4 31B â€” strong free model)
         or_key = os.getenv("OPENROUTER_API_KEY")
         if or_key:
             try:
@@ -244,7 +244,7 @@ def generate_meal_plan(patient: PatientIntake):
                 else: print(f"OpenRouter returned {res.status_code}: {res.text[:200]}")
             except Exception as e: print("OpenRouter failed:", e)
 
-        # 3. Fallback: Google Gemini (stable generate_content API — uses full schema)
+        # 3. Fallback: Google Gemini (stable generate_content API â€” uses full schema)
         if GEMINI_API_KEY:
             try:
                 response = client.models.generate_content(
