@@ -156,8 +156,9 @@ def generate_meal_plan(patient: PatientIntake):
     - Primary Goal: {patient.goal} ({patient.goal_amount})
     - Conditions: {', '.join(patient.conditions) if patient.conditions else 'None'}
     - Allergies: {', '.join(patient.allergies) if patient.allergies else 'None'}
+    - VARIETY RULE: Do not repeat the exact same daily menu. You may reuse staple items (like eggs, protein shakes, or rice), but ensure the main dishes offer variety compared to previous days.
     - Dietary Restrictions: {', '.join(patient.dietary_restrictions) if patient.dietary_restrictions else 'None'}
-    - PREVIOUSLY EATEN MEALS (DO NOT SUGGEST THESE): {past_meals_str}
+    - PREVIOUSLY EATEN MEALS (For context): {past_meals_str}
     
     Location: {weather_info.location}
     Weather Forecast:
