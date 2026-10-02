@@ -38,16 +38,16 @@ def validate_meals(
         for term in (disallowed_ingredients or [])
     ]
     
-    if len(meals) != 9:
-        errors.append(f"Expected exactly 9 meals (3 days x 3 meals), but got {len(meals)}.")
+    if len(meals) != 3:
+        errors.append(f"Expected exactly 3 meals (1 day x 3 meals), but got {len(meals)}.")
         
     # Group by day
     days = {}
     for m in meals:
         days.setdefault(m.day, []).append(m)
         
-    if len(days) != 3:
-        errors.append(f"Expected exactly 3 days of meals, got {len(days)}.")
+    if len(days) != 1:
+        errors.append(f"Expected exactly 1 day of meals, got {len(days)}.")
         
     for day_label, day_meals in days.items():
         if len(day_meals) != 3:

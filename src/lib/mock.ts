@@ -20,6 +20,7 @@ export type Meal = {
 };
 
 export type PatientIntake = {
+  planner_mode: "ai" | "catalog";
   age: number; weight: number; height: number; gender: string; activity: string;
   conditions: string[]; allergies: string[]; ethnicity: string;
   goal: string; goal_amount: string; dietary_restrictions: string[];

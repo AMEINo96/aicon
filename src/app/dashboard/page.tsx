@@ -10,6 +10,7 @@ import { generatePlan, type PlanResponse, type IntakeData } from "@/lib/mock";
 
 export default function Dashboard() {
   const [plan, setPlan] = useState<PlanResponse | null>(null);
+  const [plannerMode, setPlannerMode] = useState<IntakeData["planner_mode"]>("ai");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,10 +62,32 @@ export default function Dashboard() {
 
       {/* MAIN CONTENT */}
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-6 lg:px-10">
+        <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-6 py-3 lg:px-10">
           <h1 className="text-lg font-bold text-forest">Nutritionist Workspace</h1>
-          <div className="h-8 w-8 rounded-full bg-sage/20 border border-sage/30 flex items-center justify-center text-xs font-bold text-forest">
-            DR
+          <div className="flex items-center gap-3">
+            <div className="flex items-center rounded-lg border border-border bg-surface-2 p-1" role="group" aria-label="Choose meal plan generation method">
+              <button
+                type="button"
+                aria-pressed={plannerMode === "ai"}
+                disabled={loading}
+                onClick={() => { setPlannerMode("ai"); setError(null); }}
+                className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors sm:text-sm ${plannerMode === "ai" ? "bg-forest text-white shadow-sm" : "text-muted-foreground hover:text-forest"}`}
+              >
+                Generative AI
+              </button>
+              <button
+                type="button"
+                aria-pressed={plannerMode === "catalog"}
+                disabled={loading}
+                onClick={() => { setPlannerMode("catalog"); setError(null); }}
+                className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors sm:text-sm ${plannerMode === "catalog" ? "bg-forest text-white shadow-sm" : "text-muted-foreground hover:text-forest"}`}
+              >
+                Our meal catalog
+              </button>
+            </div>
+            <div className="hidden h-8 w-8 items-center justify-center rounded-full border border-sage/30 bg-sage/20 text-xs font-bold text-forest sm:flex">
+              DR
+            </div>
           </div>
         </header>
 
@@ -84,7 +107,7 @@ export default function Dashboard() {
                 </div>
               )}
               
-              <ClinicalIntakeForm onSubmit={submit} loading={loading} />
+              <ClinicalIntakeForm onSubmit={submit} loading={loading} plannerMode={plannerMode} onInputChange={() => setError(null)} />
             </div>
             
             {/* RESULTS COLUMN */}

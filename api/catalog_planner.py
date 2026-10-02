@@ -95,7 +95,7 @@ def build_catalog_plan(
         for portion in PORTIONS
     }
 
-    for day_index in range(3):
+    for day_index in range(1):
         best: tuple[float, tuple[Recipe, ...], tuple[float, ...]] | None = None
         day_weather = forecast[day_index] if day_index < len(forecast) else None
         combinations = product(by_slot["Breakfast"], by_slot["Lunch"], by_slot["Dinner"])

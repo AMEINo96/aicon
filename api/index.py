@@ -16,6 +16,7 @@ from api.schemas import (
 from api.nutrition_math import get_nutritional_targets
 from api.weather_api import get_7_day_forecast
 from api.meal_validator import validate_meals, structure_day_plans
+from api.catalog_planner import build_catalog_plan
 
 env_path = pathlib.Path('.') / '.env.local'
 load_dotenv(dotenv_path=env_path)
@@ -55,20 +56,6 @@ def get_regional_food_guidance(country: str) -> dict:
 @app.post("/api/generate-plan", response_model=PlanResponse)
 @app.post("/generate-plan", response_model=PlanResponse)
 def generate_meal_plan(patient: PatientIntake):
-    # Load dynamically so server restarts aren't required when adding keys
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-    if not GEMINI_API_KEY:
-        raise HTTPException(status_code=500, detail="GEMINI_API_KEY is missing. Please add it to your .env.local file or Vercel Environment Variables.")
-
-    client = genai.Client(
-        api_key=GEMINI_API_KEY,
-        http_options=types.HttpOptions(
-            timeout=15000,
-            retry_options=types.HttpRetryOptions(attempts=1),
-        ),
-    )
-    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
-
     # 1. Deterministic Math Engine
     t = get_nutritional_targets(patient)
     
@@ -102,6 +89,58 @@ def generate_meal_plan(patient: PatientIntake):
         forecast=weather_data["forecast"]
     )
 
+    if patient.planner_mode == "catalog":
+        if patient.country.strip().lower() != "pakistan":
+            raise HTTPException(status_code=422, detail="The local catalog currently supports Pakistan only.")
+        try:
+            meals, planner_messages = build_catalog_plan(
+                targets,
+                patient.dietary_restrictions,
+                patient.allergies,
+                weather_info.forecast,
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=422, detail=str(e))
+
+        is_valid, validation_msgs = validate_meals(
+            meals, targets, patient.allergies + patient.dietary_restrictions
+        )
+        if not is_valid:
+            details = "; ".join(validation_msgs[:5])
+            raise HTTPException(status_code=422, detail=f"Catalog plan validation failed: {details}")
+        for meal in meals:
+            image_prompt = f"Authentic home-cooked {meal.name}. Pakistani home-style food photography, recognizable ingredients, simple tableware, no text, one dish."
+            meal.image = (
+                "https://image.pollinations.ai/prompt/"
+                f"{urllib.parse.quote(image_prompt, safe='')}?width=800&height=600&model=flux&nologo=true"
+            )
+        meal_plan = MealPlan(
+            days=structure_day_plans(meals, weather_info.forecast),
+            overall_validation=ValidationInfo(
+                valid=True,
+                messages=planner_messages + [
+                    "Meals selected from the Pakistan starter catalog",
+                    "Nutrition values are approximate ingredient-based estimates",
+                ],
+            ),
+        )
+        return PlanResponse(patient=patient, nutrition=targets, weather=weather_info, meal_plan=meal_plan)
+
+    # Existing AI-provider path remains the default. Load keys dynamically so
+    # environment changes do not require reconstructing a module-level client.
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    if not GEMINI_API_KEY:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY is missing. Please add it to your .env.local file or Vercel Environment Variables.")
+
+    client = genai.Client(
+        api_key=GEMINI_API_KEY,
+        http_options=types.HttpOptions(
+            timeout=15000,
+            retry_options=types.HttpRetryOptions(attempts=1),
+        ),
+    )
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+
     regional_foods = get_regional_food_guidance(patient.country)
     
     weather_str = "\\n".join([f"Day {i+1} ({w['time']}): High {w['temperature_max']}C" for i, w in enumerate(weather_info.forecast)])
@@ -109,7 +148,7 @@ def generate_meal_plan(patient: PatientIntake):
     # 3. Base Prompt
     base_prompt = f"""
     You are an expert clinical nutritionist. 
-    Create a complete 3-DAY meal plan for a patient with the following profile:
+    Create a complete 1-DAY meal plan for a patient with the following profile:
     - Age: {patient.age}, Gender: {patient.gender}, Ethnicity/Culture: {patient.ethnicity}
     - Primary Goal: {patient.goal} ({patient.goal_amount})
     - Conditions: {', '.join(patient.conditions) if patient.conditions else 'None'}
@@ -121,7 +160,7 @@ def generate_meal_plan(patient: PatientIntake):
     {weather_str}
     
     CRITICAL INSTRUCTIONS:
-    1. EXACTLY 3 MEALS PER DAY: You MUST provide exactly 'Breakfast', 'Lunch', and 'Dinner' for 3 days (9 meals total). Do NOT include snacks!
+    1. EXACTLY 3 MEALS PER DAY: You MUST provide exactly 'Breakfast', 'Lunch', and 'Dinner' for 3 days (3 meals total). Do NOT include snacks!
     2. TARGETS: The math engine calculated:
        - Target Calories: {targets.target_calories} kcal
        - Target Protein: {targets.protein_g}g
@@ -151,7 +190,7 @@ def generate_meal_plan(patient: PatientIntake):
     import time
     
     # Compact schema description for fallback providers (saves ~3000 tokens vs full JSON schema)
-    compact_schema = """Return only a JSON array of exactly 9 meal objects. Each object must have these fields: {"id":"day1-breakfast","day":"Day 1","slot":"Breakfast","name":"Dish Name","ingredients":["item1","item2"],"image_keyword":"keyword","emoji":"🥣","calories":500,"protein":30,"carbs":60,"fat":15,"why":"Why it fits the weather and profile","benefits":["Benefit one","Benefit two"]}. Use days Day 1, Day 2, Day 3 and slots Breakfast, Lunch, Dinner exactly once per day. No markdown."""
+    compact_schema = """Return only a JSON array of exactly 3 meal objects. Each object must have these fields: {"id":"day1-breakfast","day":"Day 1","slot":"Breakfast","name":"Dish Name","ingredients":["item1","item2"],"image_keyword":"keyword","emoji":"🥣","calories":500,"protein":30,"carbs":60,"fat":15,"why":"Why it fits the weather and profile","benefits":["Benefit one","Benefit two"]}. Use days Day 1 and slots Breakfast, Lunch, Dinner exactly once. No markdown."""
     
     def call_ai_agent(prompt: str) -> str:
         """Tries multiple free-tier AI providers sequentially to avoid 429 quota limits."""
@@ -237,7 +276,7 @@ def generate_meal_plan(patient: PatientIntake):
             )
             
             if is_valid:
-                validation_msgs = ["Nutrition targets verified", "Dietary restrictions checked", "3-day plan generated", "Automated validation passed"]
+                validation_msgs = ["Nutrition targets verified", "Dietary restrictions checked", "1-DAY plan generated", "Automated validation passed"]
                 break
                 
             # If invalid, append feedback and retry

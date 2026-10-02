@@ -1,6 +1,6 @@
 # ClimaDiet
 
-ClimaDiet is an AI-powered clinical nutrition decision-support system. It generates culturally and climatically appropriate meal plans while strictly enforcing deterministic nutritional boundaries.
+ClimaDiet is a nutrition-planning demo. It calculates nutrition targets deterministically and supports both its original AI-provider flow and an optional Pakistan-focused catalog planner for comparison.
 
 ## Architecture
 
@@ -8,25 +8,26 @@ ClimaDiet operates on a strict deterministic validation architecture. The AI doe
 
 1. **Patient Intake**: User data (Age, Weight, Climate, Allergies, Goals).
 2. **Deterministic Nutrition Engine**: A Python engine (`api/nutrition_math.py`) calculates BMR, TDEE, Target Calories, and strict Macro goals deterministically using the Mifflin-St Jeor equation.
-3. **Weather Engine**: Open-Meteo fetches the 7-day forecast for the exact City/Country.
-4. **Gemini AI Meal Generation**: Gemini receives the clinical targets, dietary restrictions, and weather context. It generates culturally and climatically appropriate meals that fit the mathematical constraints.
-5. **Deterministic Validation Layer**: The Python backend computationally validates the AI output (checks exactly 21 meals, verifies calories are within 10% of target, checks macro addition, and scans for explicit allergens/dietary restrictions). If the AI fails, it is given an exact error trace and retries.
-6. **Next.js Dashboard**: The validated plan and the clinical constraints are served to the user.
+3. **Weather Engine**: Open-Meteo fetches the forecast for the selected city and dates.
+4. **Meal planning**: The intake form defaults to the existing AI-provider flow. For testing, choose the local catalog mode, which filters Pakistan starter meals against supported allergies and dietary restrictions, then searches serving-size combinations to fit daily calorie and macro targets.
+5. **Deterministic Validation Layer**: The backend validates the three-day plan, nutrition ranges, ingredient restrictions, and macro arithmetic before returning it.
+6. **Next.js Dashboard**: The plan, daily totals, and calculated patient values are shown to the user.
 
-> **Note:** ClimaDiet does not rely on the LLM to calculate nutritional targets. Deterministic Python calculations establish the targets, while the LLM generates meals constrained by those targets. Generated plans are then validated before being shown to the user.
+> **Prototype data note:** The starter catalog covers Pakistan only. Ingredient values are approximate generic-food references informed by [USDA FoodData Central](https://fdc.nal.usda.gov/), whose data are public domain. The recipe portions and values in this prototype are estimates, not lab analysis of Pakistani recipes or clinical advice. USDA data are not Pakistan-specific, and condition-specific medical diets are not yet encoded; a qualified local nutrition professional should review the catalog before real-world use.
 
 ## Running Locally
 
 Because this is a Next.js full-stack application with a Python backend mapped to `/api/*`, **you must run both Next.js and Uvicorn concurrently in local development**.
 
 ### 1. Set up Environment Variables
-Create a `.env.local` file in the root directory:
+The default AI-provider mode uses keys configured in the root `.env.local` file:
 ```env
 GEMINI_API_KEY=your_gemini_key_here
-# Optional Fallbacks for 429 Limit exhaustion
 OPENROUTER_API_KEY=your_openrouter_key
 GROQ_API_KEY=your_groq_key
 ```
+
+The optional catalog mode requires no AI-provider key. In the dashboard, set **Meal plan source** to **Local Pakistan catalog (test)**. It currently covers Pakistan only and uses approximate ingredient nutrition.
 
 ### 2. Start the Python Backend
 Open a terminal and run:
