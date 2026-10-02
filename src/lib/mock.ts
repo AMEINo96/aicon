@@ -1,5 +1,5 @@
 export const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
-export const SLOTS = ["Breakfast", "Lunch", "Dinner"] as const;
+export const SLOTS = ["Breakfast", "Lunch", "Snack", "Dinner"] as const;
 export type Day = (typeof DAYS)[number];
 export type Slot = (typeof SLOTS)[number];
 

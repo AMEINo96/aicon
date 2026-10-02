@@ -38,8 +38,8 @@ def validate_meals(
         for term in (disallowed_ingredients or [])
     ]
     
-    if len(meals) != 3:
-        errors.append(f"Expected exactly 3 meals (1 day x 3 meals), but got {len(meals)}.")
+    if len(meals) not in (3, 4):
+        errors.append(f"Expected 3 or 4 meals, but got {len(meals)}.")
         
     # Group by day
     days = {}
@@ -50,8 +50,8 @@ def validate_meals(
         errors.append(f"Expected exactly 1 day of meals, got {len(days)}.")
         
     for day_label, day_meals in days.items():
-        if len(day_meals) != 3:
-            errors.append(f"{day_label} has {len(day_meals)} meals, expected exactly 3 (Breakfast, Lunch, Dinner).")
+        if len(day_meals) not in (3, 4):
+            errors.append(f"{day_label} has {len(day_meals)} meals, expected 3 or 4 (Breakfast, Lunch, Snack, Dinner).")
             
         day_cals = sum(m.calories for m in day_meals)
         day_protein = sum(m.protein for m in day_meals)

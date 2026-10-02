@@ -26,7 +26,7 @@ class PatientIntake(BaseModel):
 class Meal(BaseModel):
     id: str = Field(..., description="Unique ID like 'day1-breakfast'")
     day: str = Field(..., description="e.g., 'Day 1', 'Day 2'")
-    slot: str = Field(..., description="MUST be exactly 'Breakfast', 'Lunch', or 'Dinner'. NO SNACKS.")
+    slot: str = Field(..., description="MUST be exactly 'Breakfast', 'Lunch', 'Snack', or 'Dinner'.")
     name: str = Field(..., description="Name of the food or meal")
     ingredients: List[str] = Field(..., description="List of all main ingredients to allow strict allergy validation")
     image_keyword: str = Field(..., description="1-2 word search term for the image (e.g. 'biryani', 'salad')")
