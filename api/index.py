@@ -213,7 +213,7 @@ def generate_meal_plan(patient: PatientIntake):
                     headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
                     json={
                         "model": "openai/gpt-oss-120b",
-                        "max_tokens": 4000,
+                        "max_tokens": 1000,
                         "messages": [
                             {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
                             {"role": "user", "content": prompt}
@@ -233,7 +233,7 @@ def generate_meal_plan(patient: PatientIntake):
                     "https://openrouter.ai/api/v1/chat/completions",
                     headers={"Authorization": f"Bearer {or_key}", "Content-Type": "application/json"},
                     json={
-                        "model": "nvidia/nemotron-3.5-lightning:free",
+                        "model": "openrouter/free",
                         "messages": [
                             {"role": "system", "content": f"You are a clinical nutritionist AI. {compact_schema}"},
                             {"role": "user", "content": prompt}
